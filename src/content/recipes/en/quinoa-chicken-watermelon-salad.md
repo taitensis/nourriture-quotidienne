@@ -1,17 +1,18 @@
 ---
 title: Summer Quinoa Salad with Chicken & Watermelon
 date: 2025-08-27
+lang: en
+yield: 6 servings
 tags:
   - salad
   - summer
 time:
-  - prep: 20 min
-  - cook: 15 min
-  - total: 35 min
-yield: 6 servings
+  prep: 20 min
+  cook: 15 min
+  total: 35 min
 images:
   - src: /images/quinoa-chicken-watermelon-salad-hero.jpg
-  - alt: Colorful summer quinoa salad with watermelon and grilled chicken
+    alt: Colorful summer quinoa salad with watermelon and grilled chicken
 ingredient_groups:
   - title: Salad
     ingredients:

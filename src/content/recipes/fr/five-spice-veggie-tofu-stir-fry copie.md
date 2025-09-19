@@ -1,6 +1,6 @@
 ---
 title: Wok aux légumes et tofu aux cinq épices
-date: '2025-08-27'
+date: 2025-08-27
 lang: fr
 yield: 4 portions
 difficulty: easy
@@ -19,7 +19,7 @@ ingredient_groups:
       - 1 courgette en demi-lune
       - 1 poivron émincé
       - 1 carotte râpée grossièrement
-      - '200 g de tofu ferme, pressé et coupé en dés'
+      - "200 g de tofu ferme, pressé et coupé en dés"
       - 1 c. à soupe de fécule de maïs (pour le tofu)
       - 2 c. à soupe d’huile neutre (type colza ou arachide)
       - 2 gousses d’ail pressées
@@ -58,4 +58,3 @@ notes:
     brocolis...
 translation_key: five-spice-chinese-wok
 ---
-
