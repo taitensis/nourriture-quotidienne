@@ -30,3 +30,5 @@ pnpm-debug.log*
 
 # ── Tests (optional; if you add them later)
 coverage/
+
+node_modules

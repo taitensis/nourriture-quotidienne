@@ -6,20 +6,15 @@ const LOCALES = ["en", "fr"] as const;
 
 // Prefer an explicit env var; fall back to the current CI branch; then "main"
 const branch =
-  process.env.TINA_BRANCH ||
-  process.env.VERCEL_GIT_COMMIT_REF ||
-  process.env.GITHUB_HEAD_REF ||
-  "main";
-
-const clientId =
-  process.env.TINA_CLIENT_ID || process.env.PUBLIC_TINA_CLIENT_ID || "";
-
-const token = process.env.TINA_TOKEN || "";
+  process.env.NEXT_PUBLIC_TINA_BRANCH ||
+  process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF ||
+  process.env.HEAD ||
+  "";
 
 export default defineConfig({
   // Tina Cloud auth (add these in .env locally and Actions secrets in CI)
-  clientId,
-  token,
+  token: process.env.TINA_TOKEN,
+  clientId: process.env.NEXT_PUBLIC_TINA_CLIENT_ID,
   branch,
 
   // Build the Tina admin app into /public/admin so Astro ships it
