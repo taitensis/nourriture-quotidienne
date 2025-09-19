@@ -26,7 +26,7 @@ export default defineConfig({
   build: {
     publicFolder: "public",
     outputFolder: "admin",
-    basePath: "nourriture-quotidienne",
+    basePath: "/nourriture-quotidienne/admin/",
   },
 
   // Repo-backed media: files go to /public/uploads, referenced as /uploads/...
