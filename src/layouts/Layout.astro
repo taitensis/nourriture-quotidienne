@@ -126,96 +126,6 @@ const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
             </div>
           </div>
         </div>
-
-        <!-- Mobile Menu -->
-        <div 
-          id="mobile-menu" 
-          class="md:hidden fixed inset-0 z-50 pointer-events-none"
-          role="dialog" 
-          aria-modal="true"
-        >
-          <!-- Backdrop -->
-          <div class="fixed inset-0 bg-black/50 backdrop-blur-sm opacity-0 transition-opacity duration-300 ease-in-out pointer-events-none" id="mobile-backdrop"></div>
-          
-          <!-- Sliding Panel -->
-          <div class="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-[var(--bg)]/95 dark:bg-[var(--bg-dark)]/95 backdrop-blur-xl shadow-2xl border-l border-[var(--border)] dark:border-[var(--border-dark)] transform translate-x-full transition-transform duration-300 ease-in-out" id="mobile-menu-panel">
-            <!-- Header -->
-            <div class="flex items-center justify-between p-6 border-b border-[var(--border)] dark:border-[var(--border-dark)]">
-              <h2 class="text-lg font-semibold text-[var(--text)] dark:text-[var(--text-dark)]">Menu</h2>
-              <button 
-                id="close-mobile-menu"
-                class="p-2 rounded-md text-[var(--text-muted)] dark:text-[var(--text-muted-dark)] hover:text-[var(--text)] dark:hover:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] transition-colors duration-200"
-                aria-label="Close menu"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <!-- Content -->
-            <div class="flex flex-col h-full">
-              <!-- Navigation Links -->
-              <div class="flex-1 p-6">
-                <nav class="space-y-2">
-                  <a 
-                    href={`${BASE}${lang}/about`} 
-                    class="group flex items-center px-4 py-3 text-base font-medium text-[var(--text)] dark:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] rounded-lg transition-all duration-200 transform hover:translate-x-1"
-                  >
-                    <span class="w-2 h-2 bg-[var(--accent)] dark:bg-[var(--accent-dark)] rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
-                    {lang === 'fr' ? 'À propos' : 'About'}
-                  </a>
-                  <a 
-                    href={`${BASE}${lang}/recipes`} 
-                    class="group flex items-center px-4 py-3 text-base font-medium text-[var(--text)] dark:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] rounded-lg transition-all duration-200 transform hover:translate-x-1"
-                  >
-                    <span class="w-2 h-2 bg-[var(--accent)] dark:bg-[var(--accent-dark)] rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
-                    {lang === 'fr' ? 'Recettes' : 'Recipes'}
-                  </a>
-                </nav>
-              </div>
-
-              <!-- Bottom Controls -->
-              <div class="border-t border-[var(--border)] dark:border-[var(--border-dark)] p-6 space-y-6">
-                <!-- Language Selection -->
-                <div>
-                  <h3 class="text-sm font-medium text-[var(--text-muted)] dark:text-[var(--text-muted-dark)] mb-3 uppercase tracking-wider">
-                    {lang === 'fr' ? 'Langue' : 'Language'}
-                  </h3>
-                  <div class="flex gap-2">
-                    <button 
-                      class="flex-1 px-3 py-2 text-sm font-medium bg-[var(--bg-hover)] dark:bg-[var(--bg-hover-dark)] text-[var(--text)] dark:text-[var(--text-dark)] rounded-lg hover:bg-[var(--accent)]/20 dark:hover:bg-[var(--accent-dark)]/20 border border-[var(--border)] dark:border-[var(--border-dark)] transition-all duration-200" 
-                      data-lang="en"
-                    >
-                      EN
-                    </button>
-                    <button 
-                      class="flex-1 px-3 py-2 text-sm font-medium bg-[var(--bg-hover)] dark:bg-[var(--bg-hover-dark)] text-[var(--text)] dark:text-[var(--text-dark)] rounded-lg hover:bg-[var(--accent)]/20 dark:hover:bg-[var(--accent-dark)]/20 border border-[var(--border)] dark:border-[var(--border-dark)] transition-all duration-200" 
-                      data-lang="fr"
-                    >
-                      FR
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Theme Toggle -->
-                <div>
-                  <h3 class="text-sm font-medium text-[var(--text-muted)] dark:text-[var(--text-muted-dark)] mb-3 uppercase tracking-wider">
-                    {lang === 'fr' ? 'Thème' : 'Theme'}
-                  </h3>
-                  <button 
-                    class="w-full flex items-center justify-center px-4 py-3 text-sm font-medium bg-[var(--bg-hover)] dark:bg-[var(--bg-hover-dark)] text-[var(--text)] dark:text-[var(--text-dark)] rounded-lg hover:bg-[var(--accent)]/20 dark:hover:bg-[var(--accent-dark)]/20 border border-[var(--border)] dark:border-[var(--border-dark)] transition-all duration-200 js-theme-toggle"
-                  >
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                    </svg>
-                    {lang === 'fr' ? 'Basculer le thème' : 'Toggle Theme'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </nav>
     </header>
 
@@ -229,11 +139,96 @@ const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
       <div class="mx-auto max-w-7xl px-4 py-8">
         <div class="text-center">
           <small class="text-[var(--text-muted)] dark:text-[var(--text-muted-dark)]">
-            © 2025, Maxime C. · Built with ❤️
+            © 2025, Maxime Coïc · Built with ❤️
           </small>
         </div>
       </div>
     </footer>
+
+    <!-- 🔧 Mobile menu overlay MOVED OUTSIDE <nav> to avoid stacking/position issues -->
+    <div 
+      id="mobile-menu" 
+      class="md:hidden fixed inset-0 z-[9999] pointer-events-none"
+      role="dialog" 
+      aria-modal="true"
+    >
+      <!-- Backdrop -->
+      <div
+        id="mobile-backdrop"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm opacity-0 transition-opacity duration-300 ease-in-out pointer-events-none"
+      ></div>
+
+      <!-- Sliding Panel (absolute inside fixed overlay) -->
+      <div
+        id="mobile-menu-panel"
+        class="absolute right-0 top-0 h-full w-80 max-w-[85vw] bg-[var(--bg)]/95 dark:bg-[var(--bg-dark)]/95 
+               backdrop-blur-xl shadow-2xl border-l border-[var(--border)] dark:border-[var(--border-dark)] 
+               translate-x-full transition-transform duration-300 ease-in-out will-change-transform"
+      >
+        <!-- Header -->
+        <div class="flex items-center justify-between p-6 border-b border-[var(--border)] dark:border-[var(--border-dark)]">
+          <h2 class="text-lg font-semibold text-[var(--text)] dark:text-[var(--text-dark)]">Menu</h2>
+          <button 
+            id="close-mobile-menu"
+            class="p-2 rounded-md text-[var(--text-muted)] dark:text-[var(--text-muted-dark)] hover:text-[var(--text)] dark:hover:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] transition-colors duration-200"
+            aria-label="Close menu"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Content -->
+        <div class="flex flex-col h-full">
+          <div class="flex-1 p-6">
+            <nav class="space-y-2">
+              <a 
+                href={`${BASE}${lang}/about`} 
+                class="group flex items-center px-4 py-3 text-base font-medium text-[var(--text)] dark:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] rounded-lg transition-all duration-200 transform hover:translate-x-1"
+              >
+                <span class="w-2 h-2 bg-[var(--accent)] dark:bg-[var(--accent-dark)] rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                {lang === 'fr' ? 'À propos' : 'About'}
+              </a>
+              <a 
+                href={`${BASE}${lang}/recipes`} 
+                class="group flex items-center px-4 py-3 text-base font-medium text-[var(--text)] dark:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] rounded-lg transition-all duration-200 transform hover:translate-x-1"
+              >
+                <span class="w-2 h-2 bg-[var(--accent)] dark:bg-[var(--accent-dark)] rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
+                {lang === 'fr' ? 'Recettes' : 'Recipes'}
+              </a>
+            </nav>
+          </div>
+
+          <!-- Bottom Controls -->
+          <div class="border-t border-[var(--border)] dark:border-[var(--border-dark)] p-6 space-y-6">
+            <div>
+              <h3 class="text-sm font-medium text-[var(--text-muted)] dark:text-[var(--text-muted-dark)] mb-3 uppercase tracking-wider">
+                {lang === 'fr' ? 'Langue' : 'Language'}
+              </h3>
+              <div class="flex gap-2">
+                <button class="flex-1 px-3 py-2 text-sm font-medium bg-[var(--bg-hover)] dark:bg-[var(--bg-hover-dark)] text-[var(--text)] dark:text-[var(--text-dark)] rounded-lg hover:bg-[var(--accent)]/20 dark:hover:bg-[var(--accent-dark)]/20 border border-[var(--border)] dark:border-[var(--border-dark)] transition-all duration-200" data-lang="en">EN</button>
+                <button class="flex-1 px-3 py-2 text-sm font-medium bg-[var(--bg-hover)] dark:bg-[var(--bg-hover-dark)] text-[var(--text)] dark:text-[var(--text-dark)] rounded-lg hover:bg-[var(--accent)]/20 dark:hover:bg-[var(--accent-dark)]/20 border border-[var(--border)] dark:border-[var(--border-dark)] transition-all duration-200" data-lang="fr">FR</button>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-sm font-medium text-[var(--text-muted)] dark:text-[var(--text-muted-dark)] mb-3 uppercase tracking-wider">
+                {lang === 'fr' ? 'Thème' : 'Theme'}
+              </h3>
+              <button 
+                class="w-full flex items-center justify-center px-4 py-3 text-sm font-medium bg-[var(--bg-hover)] dark:bg-[var(--bg-hover-dark)] text-[var(--text)] dark:text-[var(--text-dark)] rounded-lg hover:bg-[var(--accent)]/20 dark:hover:bg-[var(--accent-dark)]/20 border border-[var(--border)] dark:border-[var(--border-dark)] transition-all duration-200 js-theme-toggle"
+              >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+                {lang === 'fr' ? 'Basculer le thème' : 'Toggle Theme'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script define:vars={{ base: BASE }}>
       // Theme handled by /src/scripts/theme-toggle.ts (loaded below)
@@ -328,7 +323,6 @@ const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
           document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && mobileMenu.getAttribute('data-open') === 'true') close();
           });
-          // Close when clicking any link inside the panel
           panel.querySelectorAll('a').forEach(a => a.addEventListener('click', () => close()));
         }
       } catch (err) {
