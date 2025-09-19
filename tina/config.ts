@@ -1,14 +1,30 @@
 // .tina/config.ts
 import { defineConfig } from "tinacms";
 
-const locales = ["en", "fr"] as const;
+// Keep your supported locales here (used by the slugify + field options)
+const LOCALES = ["en", "fr"] as const;
+
+// Prefer an explicit env var; fall back to the current CI branch; then "main"
+const branch =
+  process.env.TINA_BRANCH ||
+  process.env.VERCEL_GIT_COMMIT_REF ||
+  process.env.GITHUB_HEAD_REF ||
+  "main";
 
 export default defineConfig({
+  // Tina Cloud auth (add these in .env locally and Actions secrets in CI)
+  clientId: process.env.PUBLIC_TINA_CLIENT_ID, // safe to expose
+  token: process.env.TINA_TOKEN, // server-only
+
+  branch,
+
+  // Build the Tina admin app into /public/admin so Astro ships it
   build: {
-    outputFolder: "admin",
     publicFolder: "public",
+    outputFolder: "admin",
   },
-  // (Optional) repo-based media to /public/uploads
+
+  // Repo-backed media: files go to /public/uploads, referenced as /uploads/...
   media: {
     tina: {
       publicFolder: "public",
@@ -24,21 +40,20 @@ export default defineConfig({
         path: "src/content/recipes",
         format: "md",
         ui: {
-          // Put new files under <lang>/<slug>.md
+          // Create files under <lang>/<slug>.md (e.g. en/five-spice-veggie-tofu-stir-fry.md)
           filename: {
             slugify: (values) => {
-              const lang = (values?.lang ?? "en").toLowerCase();
-              const t = (values?.title ?? "untitled")
+              const lang = String(values?.lang || "en").toLowerCase();
+              const t = String(values?.title || "untitled")
                 .toLowerCase()
                 .replace(/[^a-z0-9]+/g, "-")
                 .replace(/^-+|-+$/g, "");
-              // allow subfolders in filename (doc-supported)
-              // e.g. en/five-spice-tofu
               return `${lang}/${t}`;
             },
           },
         },
         fields: [
+          // Basics
           {
             type: "string",
             name: "title",
@@ -46,33 +61,21 @@ export default defineConfig({
             isTitle: true,
             required: true,
           },
-          // keep "date" as string to match your Astro schema
-          { type: "datetime", name: "date", label: "Date (YYYY-MM-DD)" },
 
+          // Your Astro schema uses z.date(); Tina "datetime" will serialize a valid date string
+          { type: "datetime", name: "date", label: "Date" },
+
+          // Language & tags
           {
             type: "string",
             name: "lang",
             label: "Language",
-            options: [...locales],
+            options: [...LOCALES],
             required: true,
           },
-
-          {
-            type: "string",
-            name: "yield",
-            label: "Yield / Servings",
-            required: true,
-          },
-          {
-            type: "string",
-            name: "difficulty",
-            label: "Difficulty",
-            options: ["easy", "medium", "hard"],
-            required: true,
-          },
-
           { type: "string", name: "tags", label: "Tags", list: true },
 
+          // Times (strings like "15 min" are fine)
           {
             type: "object",
             name: "time",
@@ -84,17 +87,48 @@ export default defineConfig({
             ],
           },
 
+          // Yield controls (UI text + optional numeric helpers used by your scaler)
+          {
+            type: "string",
+            name: "yield",
+            label: "Yield / Servings",
+            required: true,
+          },
+          {
+            type: "number",
+            name: "yield_base",
+            label: "Yield Base (number)",
+            required: false,
+          },
+          {
+            type: "number",
+            name: "yield_default",
+            label: "Yield Default (number)",
+            required: false,
+          },
+
+          // Difficulty
+          {
+            type: "string",
+            name: "difficulty",
+            label: "Difficulty",
+            options: ["easy", "medium", "hard"],
+            required: false,
+          },
+
+          // Images
           {
             type: "object",
             name: "images",
             label: "Images",
             list: true,
             fields: [
-              { type: "string", name: "src", label: "Src" },
+              { type: "image", name: "src", label: "Image" },
               { type: "string", name: "alt", label: "Alt", required: false },
             ],
           },
 
+          // Optional extra title lines
           {
             type: "string",
             name: "title_lines",
@@ -103,6 +137,7 @@ export default defineConfig({
             required: false,
           },
 
+          // Ingredients (grouped, required; matches your zod schema)
           {
             type: "object",
             name: "ingredient_groups",
@@ -119,12 +154,13 @@ export default defineConfig({
               {
                 type: "string",
                 name: "ingredients",
-                label: "Ingredients",
+                label: "Ingredients (one per line)",
                 list: true,
               },
             ],
           },
 
+          // Steps & notes
           {
             type: "string",
             name: "steps",
@@ -132,8 +168,15 @@ export default defineConfig({
             list: true,
             required: true,
           },
-          { type: "string", name: "notes", label: "Notes", list: true },
+          {
+            type: "string",
+            name: "notes",
+            label: "Notes",
+            list: true,
+            required: false,
+          },
 
+          // i18n key
           {
             type: "string",
             name: "translation_key",
