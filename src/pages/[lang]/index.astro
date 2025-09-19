@@ -1,0 +1,16 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { SUPPORTED_LANGS } from "../../lib/i18n";
+
+export async function getStaticPaths() {
+  return SUPPORTED_LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
+---
+<Layout lang={lang} title="Home • My Recipes" class="text-[var(--text)] dark:text-[var(--text-dark)] bg-[var(--bg)] dark:bg-[var(--bg-dark)]" mainClass="prose-dense wide">
+  <h1>{lang === "fr" ? "Bienvenue" : "Welcome"}</h1>
+  <p>
+    <a href={`/${lang}/recipes`}>{lang === "fr" ? "Parcourir les recettes →" : "Browse recipes →"}</a>
+  </p>
+</Layout>

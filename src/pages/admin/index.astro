@@ -1,0 +1,68 @@
+---
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>CMS</title>
+    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <script>
+      // Inline config so we don't need /admin/config.yml
+      window.CMS_MANUAL_INIT = true;
+      window.addEventListener("DOMContentLoaded", () => {
+        CMS.init({
+          config: {
+            backend: { name: "git-gateway", branch: "main" },
+            local_backend: true,
+            media_folder: "public/images",
+            public_folder: "/images",
+            collections: [
+              {
+                name: "recipes",
+                label: "Recipes",
+                folder: "src/content/recipes",
+                create: true,
+                format: "frontmatter",
+                extension: "md",
+                slug: "{{slug}}",
+                fields: [
+                  { label: "Title", name: "title", widget: "string" },
+                  { label: "Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", time_format: false },
+                  { label: "Tags", name: "tags", widget: "list", default: [] },
+                  {
+                    label: "Time", name: "time", widget: "object",
+                    fields: [
+                      { label: "Prep", name: "prep", widget: "string" },
+                      { label: "Cook", name: "cook", widget: "string" },
+                      { label: "Total", name: "total", widget: "string" },
+                    ]
+                  },
+                  { label: "Yield", name: "yield", widget: "string" },
+                  {
+                    label: "Images", name: "images", widget: "list",
+                    fields: [
+                      { label: "Image", name: "src", widget: "image" },
+                      { label: "Alt", name: "alt", widget: "string", required: false },
+                    ]
+                  },
+                  { label: "Ingredients (flat)", name: "ingredients", widget: "list", required: false },
+                  {
+                    label: "Ingredient groups", name: "ingredient_groups", widget: "list", required: false,
+                    fields: [
+                      { label: "Title", name: "title", widget: "string", required: false },
+                      { label: "Ingredients", name: "ingredients", widget: "list" },
+                    ]
+                  },
+                  { label: "Steps", name: "steps", widget: "list" },
+                  { label: "Notes", name: "notes", widget: "list", required: false, default: [] },
+                  { label: "Body (intro)", name: "body", widget: "markdown", required: false },
+                ],
+              }
+            ],
+          }
+        });
+      });
+    </script>
+  </head>
+  <body></body>
+</html>

@@ -1,0 +1,36 @@
+---
+// src/pages/[lang]/about.astro
+import Layout from "../../layouts/Layout.astro";
+
+export const prerender = true;
+
+type Lang = 'en' | 'fr';
+
+export function getStaticPaths() {
+  const SUPPORTED: ReadonlyArray<Lang> = ['en', 'fr'];
+  return SUPPORTED.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+
+const t = lang === 'fr'
+  ? {
+      metaTitle: "À propos • My Recipes",
+      h1: "À propos de ce site",
+      p1: "Ceci est mon petit site de recettes construit avec Astro.",
+      back: "← Retour à l’accueil",
+    }
+  : {
+      metaTitle: "About • My Recipes",
+      h1: "About this site",
+      p1: "This is my tiny recipe site built with Astro.",
+      back: "← Back home",
+    };
+---
+<Layout lang={lang} title={t.metaTitle}>
+  <h1>{t.h1}</h1>
+  <p>{t.p1}</p>
+  <p><a href={`/${lang}/`}>{t.back}</a></p>
+</article>
+
+</Layout>
