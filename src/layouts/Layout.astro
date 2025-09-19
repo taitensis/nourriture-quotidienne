@@ -100,7 +100,7 @@ const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
                 </ul>
               </div>
 
-              <!-- Theme Toggle -->
+              <!-- Theme Toggle (desktop) -->
               <button 
                 id="theme-toggle" 
                 class="p-2 rounded-md hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] transition-colors duration-200 js-theme-toggle" 
@@ -110,8 +110,18 @@ const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
               </button>
             </div>
 
-            <!-- Mobile Menu Button -->
-            <div class="md:hidden">
+            <!-- Mobile Controls -->
+            <div class="md:hidden flex items-center gap-2">
+              <!-- Theme Toggle (mobile) -->
+              <button
+                id="theme-toggle-mobile"
+                class="p-2 rounded-md hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] transition-colors duration-200 js-theme-toggle"
+                aria-label="Toggle dark mode"
+              >
+                <Image src={nightMode} alt="Theme" class="w-5 h-5" />
+              </button>
+
+              <!-- Mobile Menu Button -->
               <button 
                 id="menu-toggle" 
                 class="p-2 rounded-md text-[var(--text)] dark:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] transition-colors duration-200" 
@@ -145,7 +155,7 @@ const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
       </div>
     </footer>
 
-    <!-- 🔧 Mobile menu overlay MOVED OUTSIDE <nav> to avoid stacking/position issues -->
+    <!-- Mobile menu overlay (outside <nav>) -->
     <div 
       id="mobile-menu" 
       class="md:hidden fixed inset-0 z-[9999] pointer-events-none"
@@ -158,7 +168,7 @@ const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
         class="fixed inset-0 bg-black/50 backdrop-blur-sm opacity-0 transition-opacity duration-300 ease-in-out pointer-events-none"
       ></div>
 
-      <!-- Sliding Panel (absolute inside fixed overlay) -->
+      <!-- Sliding Panel -->
       <div
         id="mobile-menu-panel"
         class="absolute right-0 top-0 h-full w-80 max-w-[85vw] bg-[var(--bg)]/95 dark:bg-[var(--bg-dark)]/95 
@@ -207,8 +217,8 @@ const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
                 {lang === 'fr' ? 'Langue' : 'Language'}
               </h3>
               <div class="flex gap-2">
-                <button class="flex-1 px-3 py-2 text-sm font-medium bg-[var(--bg-hover)] dark:bg-[var(--bg-hover-dark)] text-[var(--text)] dark:text-[var(--text-dark)] rounded-lg hover:bg-[var(--accent)]/20 dark:hover:bg-[var(--accent-dark)]/20 border border-[var(--border)] dark:border-[var(--border-dark)] transition-all duration-200" type="button" data-lang="en">EN</button>
-                <button class="flex-1 px-3 py-2 text-sm font-medium bg-[var(--bg-hover)] dark:bg-[var(--bg-hover-dark)] text-[var(--text)] dark:text-[var(--text-dark)] rounded-lg hover:bg-[var(--accent)]/20 dark:hover:bg-[var(--accent-dark)]/20 border border-[var(--border)] dark:border-[var(--border-dark)] transition-all duration-200" type="button" data-lang="fr">FR</button>
+                <button class="flex-1 px-3 py-2 text-sm font-medium bg-[var(--bg-hover)] dark:bg-[var(--bg-hover-dark)] text-[var(--text)] dark:text-[var(--text-dark)] rounded-lg hover:bg-[var(--accent)]/20 dark:hover:bg-[var(--accent-dark)]/20 border border-[var(--border)] dark:border-[var(--border-dark)] transition-all duration-200" data-lang="en">EN</button>
+                <button class="flex-1 px-3 py-2 text-sm font-medium bg-[var(--bg-hover)] dark:bg-[var(--bg-hover-dark)] text-[var(--text)] dark:text-[var(--text-dark)] rounded-lg hover:bg-[var(--accent)]/20 dark:hover:bg-[var(--accent-dark)]/20 border border-[var(--border)] dark:border-[var(--border-dark)] transition-all duration-200" data-lang="fr">FR</button>
               </div>
             </div>
 
@@ -233,24 +243,27 @@ const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
     <script define:vars={{ base: BASE }}>
       // Theme handled by /src/scripts/theme-toggle.ts (loaded below)
 
-      // --- Language switcher (isolated; won't break menu if it fails) ---
+      // --- Language switcher (robust + base-aware) ---
       try {
         const SUPPORTED = ['en', 'fr'];
         const langDropdown = document.getElementById('lang-dropdown');
         const langSwitcher = document.getElementById('languageSwitcher');
         const langMenu = document.getElementById('lang-menu');
 
-        const b = base.endsWith('/') ? base : base + '/';
-        const stripBase = (pathname) =>
-          pathname.startsWith(b) ? pathname.slice(b.length - 1).replace(/^\/+/, '') : pathname.replace(/^\/+/, '');
-        const replaceLangInPath = (pathname, newLang) => {
-          const stripped = stripBase(pathname);           // e.g. "en/recipes/foo"
-          const parts = stripped.split('/').filter(Boolean);
-          const head = parts[0];
-          const tail = SUPPORTED.includes(head) ? parts.slice(1).join('/') : parts.join('/');
-          const out  = `${b}${newLang}/${tail}`;
-          return out.replace(/\/+/g, '/');
-        };
+        const repoBase = (function(b){ return (b.endsWith('/') && b.length>1) ? b.slice(0,-1) : b; })(base);
+        function buildLangURL(newLang) {
+          const url = new URL(window.location.href);
+          let path = url.pathname;                  // e.g. /nourriture-quotidienne/en/recipes/abc
+          if (repoBase !== '/' && path.startsWith(repoBase)) {
+            path = path.slice(repoBase.length);     // -> /en/recipes/abc
+          }
+          path = path.replace(/^\/+/, '');          // -> en/recipes/abc
+          const parts = path.split('/').filter(Boolean);
+          if (SUPPORTED.includes(parts[0])) parts.shift();
+          const tail = parts.join('/');
+          const next = `${repoBase}/${newLang}/${tail}`.replace(/\/+/g, '/');
+          return next + url.search + url.hash;
+        }
 
         // Dropdown open/close
         langSwitcher?.addEventListener('click', (e) => {
@@ -266,15 +279,14 @@ const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
           }
         });
 
-        // Change language
+        // Change language (desktop + mobile)
         document.querySelectorAll('[data-lang]').forEach((btn) => {
           btn.addEventListener('click', (e) => {
-            const newLang = e.currentTarget.getAttribute('data-lang');
+            e.preventDefault();
+            const newLang = btn.getAttribute('data-lang');
             if (!newLang || !SUPPORTED.includes(newLang)) return;
-            const { pathname, search, hash } = window.location;
-            const nextPath = replaceLangInPath(pathname, newLang);
             try { localStorage.setItem('lang', newLang); } catch {}
-            window.location.assign(nextPath + search + hash);
+            window.location.assign(buildLangURL(newLang));
           });
         });
       } catch (err) {
@@ -290,7 +302,6 @@ const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
         const backdrop = document.getElementById('mobile-backdrop');
 
         if (menuToggle && mobileMenu && panel && backdrop) {
-          // Prevent body scroll reliably (iOS): toggle on <html>
           const lockScroll = () => document.documentElement.classList.add('overflow-hidden');
           const unlockScroll = () => document.documentElement.classList.remove('overflow-hidden');
 
