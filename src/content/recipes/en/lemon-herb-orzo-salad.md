@@ -8,12 +8,12 @@ tags:
   - vegan
   - salad
 time:
-  - prep: 10 min
-  - cook: 10 min
-  - total: 20 min
+  prep: 10 min
+  cook: 10 min
+  total: 20 min
 images:
   - src: "/images/lemon-herb-orzo-hero.jpg"
-  - alt: "Bowl of lemony orzo salad"
+    alt: "Bowl of lemony orzo salad"
 ingredient_groups:
   - ingredients:
       - 200 g orzo
