@@ -9,7 +9,8 @@ import themeToggleUrl from "../scripts/theme-toggle.ts?url";
 
 const { lang: propLang, title } = Astro.props;
 const lang = propLang ?? Astro.currentLocale ?? "en";
-const BASE = import.meta.env.BASE_URL;
+const RAW_BASE = import.meta.env.BASE_URL;
+const BASE = RAW_BASE.endsWith('/') ? RAW_BASE : RAW_BASE + '/';
 ---
 
 <!DOCTYPE html>
@@ -27,7 +28,7 @@ const BASE = import.meta.env.BASE_URL;
             
             <!-- Logo -->
             <div class="flex items-center">
-              <a href={`${import.meta.env.BASE_URL}${lang}/`} class="flex items-center space-x-3" aria-label="Home">
+              <a href={`${BASE}${lang}/`} class="flex items-center space-x-3" aria-label="Home">
                 <img src={logoUrl} alt="Website Logo" class="h-8 w-auto" />
                 <span class="text-xl font-semibold text-[var(--text)] dark:text-[var(--text-dark)]">
                   Nourriture Quotidienne
@@ -38,13 +39,13 @@ const BASE = import.meta.env.BASE_URL;
             <!-- Desktop Navigation -->
             <div class="hidden md:flex items-center space-x-8">
               <a 
-                href={`${import.meta.env.BASE_URL}${lang}/about`} 
+                href={`${BASE}${lang}/about`} 
                 class="text-[var(--text-muted)] hover:text-[var(--text)] dark:text-[var(--text-muted-dark)] dark:hover:text-[var(--text-dark)] px-3 py-2 text-sm font-medium transition-colors duration-200"
               >
                 {lang === 'fr' ? 'À propos' : 'About'}
               </a>
               <a 
-                href={`${import.meta.env.BASE_URL}${lang}/recipes`} 
+                href={`${BASE}${lang}/recipes`} 
                 class="text-[var(--text-muted)] hover:text-[var(--text)] dark:text-[var(--text-muted-dark)] dark:hover:text-[var(--text-dark)] px-3 py-2 text-sm font-medium transition-colors duration-200"
               >
                 {lang === 'fr' ? 'Recettes' : 'Recipes'}
@@ -150,14 +151,14 @@ const BASE = import.meta.env.BASE_URL;
               <div class="flex-1 p-6">
                 <nav class="space-y-2">
                   <a 
-                    href={`${import.meta.env.BASE_URL}${lang}/about`} 
+                    href={`${BASE}${lang}/about`} 
                     class="group flex items-center px-4 py-3 text-base font-medium text-[var(--text)] dark:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] rounded-lg transition-all duration-200 transform hover:translate-x-1"
                   >
                     <span class="w-2 h-2 bg-[var(--accent)] dark:bg-[var(--accent-dark)] rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                     {lang === 'fr' ? 'À propos' : 'About'}
                   </a>
                   <a 
-                    href={`${import.meta.env.BASE_URL}${lang}/recipes`} 
+                    href={`${BASE}${lang}/recipes`} 
                     class="group flex items-center px-4 py-3 text-base font-medium text-[var(--text)] dark:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] rounded-lg transition-all duration-200 transform hover:translate-x-1"
                   >
                     <span class="w-2 h-2 bg-[var(--accent)] dark:bg-[var(--accent-dark)] rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>

@@ -7,7 +7,8 @@ export async function getStaticPaths() {
 }
 
 const { lang } = Astro.params;
-const BASE = import.meta.env.BASE_URL;
+const RAW_BASE = import.meta.env.BASE_URL;
+const BASE = RAW_BASE.endsWith('/') ? RAW_BASE : RAW_BASE + '/';
 ---
 <Layout lang={lang} title="Home • Nourriture Quotidienne" mainClass="prose-dense wide">
   <h1>{lang === "fr" ? "Bienvenue" : "Welcome"}</h1>
