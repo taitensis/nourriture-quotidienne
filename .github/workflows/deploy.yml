@@ -31,16 +31,6 @@ jobs:
           # (optional) if you also created PUBLIC_TINA_CLIENT_ID:
           PUBLIC_TINA_CLIENT_ID: ${{ secrets.TINA_CLIENT_ID }}
 
-      - name: Prefix Tina admin asset paths for GitHub Pages
-        run: |
-          ADMIN="dist/admin/index.html"
-          if [ -f "$ADMIN" ]; then
-            sed -i 's|src="/admin/|src="/nourriture-quotidienne/admin/|g' "$ADMIN"
-            sed -i 's|href="/admin/|href="/nourriture-quotidienne/admin/|g' "$ADMIN"
-          else
-            echo "No dist/admin/index.html found"; ls -la dist || true
-          fi
-
   deploy:
     needs: build
     runs-on: ubuntu-latest
