@@ -11,11 +11,15 @@ const branch =
   process.env.GITHUB_HEAD_REF ||
   "main";
 
+const clientId =
+  process.env.TINA_CLIENT_ID || process.env.PUBLIC_TINA_CLIENT_ID || "";
+
+const token = process.env.TINA_TOKEN || "";
+
 export default defineConfig({
   // Tina Cloud auth (add these in .env locally and Actions secrets in CI)
-  clientId: process.env.PUBLIC_TINA_CLIENT_ID, // safe to expose
-  token: process.env.TINA_TOKEN, // server-only
-
+  clientId,
+  token,
   branch,
 
   // Build the Tina admin app into /public/admin so Astro ships it

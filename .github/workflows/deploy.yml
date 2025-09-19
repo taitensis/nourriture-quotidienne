@@ -25,9 +25,11 @@ jobs:
         with:
           node-version: 20
         env:
-          PUBLIC_TINA_CLIENT_ID: ${{ secrets.PUBLIC_TINA_CLIENT_ID }}
+          TINA_CLIENT_ID: ${{ secrets.TINA_CLIENT_ID }}
           TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
           TINA_BRANCH: main
+          # (optional) if you also created PUBLIC_TINA_CLIENT_ID:
+          PUBLIC_TINA_CLIENT_ID: ${{ secrets.TINA_CLIENT_ID }}
 
   deploy:
     needs: build
