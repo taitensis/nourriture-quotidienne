@@ -79,10 +79,22 @@ const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
                   role="menu"
                 >
                   <li>
-                    <button type="button" class="w-full text-left px-4 py-2 text-sm text-[var(--text)] dark:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] transition-colors duration-200" data-lang="en">English</button>
+                    <button 
+                      type="button" 
+                      class="w-full text-left px-4 py-2 text-sm text-[var(--text)] dark:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] transition-colors duration-200" 
+                      data-lang="en"
+                    >
+                      English
+                    </button>
                   </li>
                   <li>
-                    <button type="button" class="w-full text-left px-4 py-2 text-sm text-[var(--text)] dark:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] transition-colors duration-200" data-lang="fr">Français</button>
+                    <button 
+                      type="button" 
+                      class="w-full text-left px-4 py-2 text-sm text-[var(--text)] dark:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] transition-colors duration-200" 
+                      data-lang="fr"
+                    >
+                      Français
+                    </button>
                   </li>
                 </ul>
               </div>
@@ -143,16 +155,33 @@ const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
     </footer>
 
     <!-- Mobile menu overlay (outside <nav>) -->
-    <div id="mobile-menu" class="md:hidden fixed inset-0 z-[9999] pointer-events-none" role="dialog" aria-modal="true">
+    <div 
+      id="mobile-menu" 
+      class="md:hidden fixed inset-0 z-[9999] pointer-events-none"
+      role="dialog" 
+      aria-modal="true"
+    >
       <!-- Backdrop -->
-      <div id="mobile-backdrop" class="fixed inset-0 bg-black/50 backdrop-blur-sm opacity-0 transition-opacity duration-300 ease-in-out pointer-events-none"></div>
+      <div
+        id="mobile-backdrop"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm opacity-0 transition-opacity duration-300 ease-in-out pointer-events-none"
+      ></div>
 
       <!-- Sliding Panel -->
-      <div id="mobile-menu-panel" class="absolute right-0 top-0 h-full w-80 max-w-[85vw] bg-[var(--bg)]/95 dark:bg-[var(--bg-dark)]/95 backdrop-blur-xl shadow-2xl border-l border-[var(--border)] dark:border-[var(--border-dark)] translate-x-full transition-transform duration-300 ease-in-out will-change-transform">
+      <div
+        id="mobile-menu-panel"
+        class="absolute right-0 top-0 h-full w-80 max-w-[85vw] bg-[var(--bg)]/95 dark:bg-[var(--bg-dark)]/95 
+               backdrop-blur-xl shadow-2xl border-l border-[var(--border)] dark:border-[var(--border-dark)] 
+               translate-x-full transition-transform duration-300 ease-in-out will-change-transform"
+      >
         <!-- Header -->
         <div class="flex items-center justify-between p-6 border-b border-[var(--border)] dark:border-[var(--border-dark)]">
           <h2 class="text-lg font-semibold text-[var(--text)] dark:text-[var(--text-dark)]">Menu</h2>
-          <button id="close-mobile-menu" class="p-2 rounded-md text-[var(--text-muted)] dark:text-[var(--text-muted-dark)] hover:text-[var(--text)] dark:hover:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] transition-colors duration-200" aria-label="Close menu">
+          <button 
+            id="close-mobile-menu"
+            class="p-2 rounded-md text-[var(--text-muted)] dark:text-[var(--text-muted-dark)] hover:text-[var(--text)] dark:hover:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] transition-colors duration-200"
+            aria-label="Close menu"
+          >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -163,11 +192,17 @@ const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
         <div class="flex flex-col h-full">
           <div class="flex-1 p-6">
             <nav class="space-y-2">
-              <a href={`${BASE}${lang}/about`} class="group flex items-center px-4 py-3 text-base font-medium text-[var(--text)] dark:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] rounded-lg transition-all duration-200 transform hover:translate-x-1">
+              <a 
+                href={`${BASE}${lang}/about`} 
+                class="group flex items-center px-4 py-3 text-base font-medium text-[var(--text)] dark:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] rounded-lg transition-all duration-200 transform hover:translate-x-1"
+              >
                 <span class="w-2 h-2 bg-[var(--accent)] dark:bg-[var(--accent-dark)] rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                 {lang === 'fr' ? 'À propos' : 'About'}
               </a>
-              <a href={`${BASE}${lang}/recipes`} class="group flex items-center px-4 py-3 text-base font-medium text-[var(--text)] dark:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] rounded-lg transition-all duration-200 transform hover:translate-x-1">
+              <a 
+                href={`${BASE}${lang}/recipes`} 
+                class="group flex items-center px-4 py-3 text-base font-medium text-[var(--text)] dark:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] rounded-lg transition-all duration-200 transform hover:translate-x-1"
+              >
                 <span class="w-2 h-2 bg-[var(--accent)] dark:bg-[var(--accent-dark)] rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                 {lang === 'fr' ? 'Recettes' : 'Recipes'}
               </a>
@@ -190,7 +225,9 @@ const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
               <h3 class="text-sm font-medium text-[var(--text-muted)] dark:text-[var(--text-muted-dark)] mb-3 uppercase tracking-wider">
                 {lang === 'fr' ? 'Thème' : 'Theme'}
               </h3>
-              <button class="w-full flex items-center justify-center px-4 py-3 text-sm font-medium bg-[var(--bg-hover)] dark:bg-[var(--bg-hover-dark)] text-[var(--text)] dark:text-[var(--text-dark)] rounded-lg hover:bg-[var(--accent)]/20 dark:hover:bg-[var(--accent-dark)]/20 border border-[var(--border)] dark:border-[var(--border-dark)] transition-all duration-200 js-theme-toggle">
+              <button 
+                class="w-full flex items-center justify-center px-4 py-3 text-sm font-medium bg-[var(--bg-hover)] dark:bg-[var(--bg-hover-dark)] text-[var(--text)] dark:text-[var(--text-dark)] rounded-lg hover:bg-[var(--accent)]/20 dark:hover:bg-[var(--accent-dark)]/20 border border-[var(--border)] dark:border-[var(--border-dark)] transition-all duration-200 js-theme-toggle"
+              >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                 </svg>
@@ -203,24 +240,7 @@ const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
     </div>
 
     <script define:vars={{ base: BASE }}>
-      // --- Theme: fully inline (no .ts import) ---
-      (function(){
-        var KEY='theme';
-        function apply(t){ document.documentElement.classList.toggle('dark', t==='dark'); try{localStorage.setItem(KEY,t);}catch{} }
-        function compute(){
-          try{ var s=localStorage.getItem(KEY); if(s==='light'||s==='dark') return s; }catch{}
-          return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-        // init (in case head script didn't run)
-        apply(compute());
-        function toggle(){ apply(document.documentElement.classList.contains('dark')?'light':'dark'); }
-        function ready(fn){ if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',fn,{once:true});} else fn(); }
-        ready(function(){
-          document.querySelectorAll('.js-theme-toggle, #theme-toggle').forEach(function(btn){
-            btn.addEventListener('click', function(e){ e.preventDefault(); toggle(); });
-          });
-        });
-      })();
+      // Theme handled by /src/scripts/theme-toggle.ts (loaded below)
 
       // --- Language switcher (robust + base-aware) ---
       try {
@@ -229,20 +249,18 @@ const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
         const langSwitcher = document.getElementById('languageSwitcher');
         const langMenu = document.getElementById('lang-menu');
 
-        // Build new URL under repo base
+        const repoBase = (function(b){ return (b.endsWith('/') && b.length>1) ? b.slice(0,-1) : b; })(base);
         function buildLangURL(newLang) {
           const url = new URL(window.location.href);
-          let base = `${baseVar}`; // injected below
-          if (!base.endsWith('/')) base += '/';
-          let path = url.pathname;                    // e.g. /repo/en/recipes/foo
-          if (base !== '/' && path.startsWith(base)) {
-            path = path.slice(base.length - 1);       // -> /en/recipes/foo
+          let path = url.pathname;                  // e.g. /nourriture-quotidienne/en/recipes/abc
+          if (repoBase !== '/' && path.startsWith(repoBase)) {
+            path = path.slice(repoBase.length);     // -> /en/recipes/abc
           }
-          path = path.replace(/^\/+/, '');            // -> en/recipes/foo
+          path = path.replace(/^\/+/, '');          // -> en/recipes/abc
           const parts = path.split('/').filter(Boolean);
           if (SUPPORTED.includes(parts[0])) parts.shift();
           const tail = parts.join('/');
-          const next = `${base}${newLang}/${tail}`.replace(/\/+/g, '/');
+          const next = `${repoBase}/${newLang}/${tail}`.replace(/\/+/g, '/');
           return next + url.search + url.hash;
         }
 
@@ -312,7 +330,9 @@ const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
           menuToggle.addEventListener('click', (e) => { e.preventDefault(); open(); });
           closeBtn?.addEventListener('click', (e) => { e.preventDefault(); close(); });
           backdrop.addEventListener('click', (e) => { e.preventDefault(); close(); });
-          document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && mobileMenu.getAttribute('data-open') === 'true') close(); });
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && mobileMenu.getAttribute('data-open') === 'true') close();
+          });
           panel.querySelectorAll('a').forEach(a => a.addEventListener('click', () => close()));
         }
       } catch (err) {
@@ -320,7 +340,9 @@ const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
       }
     </script>
 
-    <!-- Inject BASE for buildLangURL -->
-    <script>var baseVar = {JSON.stringify(BASE)};</script>
+    <!-- Global theme toggle script -->
+    <script type="module">
+      import "/src/scripts/theme-toggle.ts";
+    </script>
   </body>
 </html>
