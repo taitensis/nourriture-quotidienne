@@ -5,6 +5,8 @@ import { getCollection } from "astro:content";
 import { Image } from "astro:assets";
 import type { ImageMetadata } from "astro";
 
+const BASE = import.meta.env.BASE_URL;
+
 /** Import build-time de toutes les images recettes dans src/assets/recipes (sous-dossiers inclus) */
 const imageModules = import.meta.glob<ImageMetadata>(
   "../../../assets/recipes/**/*.{jpg,jpeg,png,webp,avif}",
@@ -31,7 +33,7 @@ const { lang } = Astro.params as { lang: string };
 const all = await getCollection("recipes");
 const recipes = all
   .filter((r) => r.slug.startsWith(`${lang}/`))
-  .sort((a, b) => (a.data.date < b.data.date ? 1 : -1));
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
 const localSlug = (full: string) => full.split("/").slice(1).join("/");
 const pageTitle = lang === "fr" ? "Recettes" : "Recipes";
@@ -74,7 +76,7 @@ const pageTitle = lang === "fr" ? "Recettes" : "Recipes";
 
             <div class="px-6 py-4">
               <h3 class="font-bold text-xl mb-2">
-                <a href={`/${lang}/recipes/${localSlug(r.slug)}`}>{r.data.title}</a>
+                <a href={`${BASE}${lang}/recipes/${localSlug(r.slug)}`}>{r.data.title}</a>
               </h3>
               {r.data.description && (
                 <p class="text-gray-700 dark:text-gray-300 text-base line-clamp-3">

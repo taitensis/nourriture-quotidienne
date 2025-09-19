@@ -1,3 +1,4 @@
 ---
-Astro.redirect("/en/");
+const BASE = import.meta.env.BASE_URL;
+Astro.redirect(`${BASE}en/`);
 ---

@@ -1,237 +1,63 @@
 // src/scripts/scale-ingredients.ts
-// Unit-smart ingredient scaler for your recipe page.
-//
-// Works with markup from your [lang]/recipes/[slug].astro:
-// - <span data-yield data-yield-base="..."> ... </span>
-// - <button data-scale="+"> / <button data-scale="-">
-// - <span class="ingredient-text">400 g flour</span>
-//
-// Notes:
-// - Keeps original ingredient lines in data attributes so scaling is idempotent.
-// - Metric-first; tsp/tbsp get special handling (12 tsp -> 4 tbsp, etc.)
-// - EN/FR unit aliases supported (càc/càs, cuil. à café/soupe, etc.)
+// Unit-smart ingredient scaler (DOM glue only).
+// Uses shared logic from src/lib/recipe-units.ts
 
-type Dim = "mass" | "volume";
-type CanonUnit = "g" | "kg" | "ml" | "cl" | "dl" | "l" | "tsp" | "tbsp";
+import { scaleIngredientString, parseYieldServings } from "../lib/recipe-units";
 
-type UnitDef = {
-  dim: Dim;
-  toBase: (n: number) => number;    // base: g for mass, ml for volume
-  fromBase: (n: number) => number;  // base -> this unit
-  aliases: string[];
-};
-
-const U: Record<CanonUnit, UnitDef> = {
-  g:   { dim: "mass",   toBase: n => n,        fromBase: n => n,        aliases: ["g","gram","grams","gramme","grammes"] },
-  kg:  { dim: "mass",   toBase: n => n*1000,   fromBase: n => n/1000,   aliases: ["kg","kilogram","kilograms","kilogramme","kilogrammes"] },
-
-  ml:  { dim: "volume", toBase: n => n,        fromBase: n => n,        aliases: ["ml","milliliter","millilitre","milliliters","millilitres"] },
-  cl:  { dim: "volume", toBase: n => n*10,     fromBase: n => n/10,     aliases: ["cl","centiliter","centilitre","centiliters","centilitres"] },
-  dl:  { dim: "volume", toBase: n => n*100,    fromBase: n => n/100,    aliases: ["dl","deciliter","decilitre","deciliters","decilitres"] },
-  l:   { dim: "volume", toBase: n => n*1000,   fromBase: n => n/1000,   aliases: ["l","liter","litre","liters","litres"] },
-
-  // 1 tsp = 5 ml, 1 tbsp = 15 ml
-  tsp: { dim: "volume", toBase: n => n*5,      fromBase: n => n/5,      aliases: ["tsp","teaspoon","teaspoons","cac","càc","c a c","c-a-c","c.à.c","cuil. a cafe","cuil. à café","cuil a cafe","cuil cafe"] },
-  tbsp:{ dim: "volume", toBase: n => n*15,     fromBase: n => n/15,     aliases: ["tbsp","tablespoon","tablespoons","cas","càs","c a s","c-a-s","c.à.s","cuil. a soupe","cuil. à soupe","cuil a soupe","cuil soupe"] },
-};
-
-const UNICODE_FRAC: Record<string, number> = {
-  "¼":0.25,"½":0.5,"¾":0.75,"⅓":1/3,"⅔":2/3,"⅛":0.125,"⅜":0.375,"⅝":0.625,"⅞":0.875,
-};
-
-function norm(s: string) {
-  return s
-    .toLowerCase()
-    .normalize("NFD").replace(/\p{Diacritic}/gu, "")
-    .replace(/\./g, "")
-    .trim();
+function clamp(n: number, min = 1, max = 999) {
+  return Math.max(min, Math.min(max, n));
 }
-
-function parseNumberToken(s: string): number | null {
-  s = s.trim();
-  // unicode-only (e.g., "½")
-  const chars = [...s];
-  if (chars.length && chars.every(ch => UNICODE_FRAC[ch] != null)) {
-    return chars.reduce((t, ch) => t + UNICODE_FRAC[ch], 0);
-  }
-  // mixed "1 1/2" or "1-1/2"
-  const m1 = s.match(/^(\d+)[\s-]+(\d+)\/(\d+)$/);
-  if (m1) return Number(m1[1]) + Number(m1[2]) / Number(m1[3]);
-  // fraction "2/3"
-  const m2 = s.match(/^(\d+)\/(\d+)$/);
-  if (m2) return Number(m2[1]) / Number(m2[2]);
-  // decimal/int, allow comma
-  const n = Number(s.replace(",", "."));
-  return Number.isFinite(n) ? n : null;
-}
-
-function firstNumberFromRange(s: string): number | null {
-  const parts = s.split(/[-–—]/).map(x => x.trim());
-  return parts.length >= 2 ? parseNumberToken(parts[0]) : parseNumberToken(s);
-}
-
-function canonicalUnit(raw?: string): CanonUnit | null {
-  if (!raw) return null;
-  const w = norm(raw);
-  for (const [canon, def] of Object.entries(U) as [CanonUnit, UnitDef][]) {
-    if (def.aliases.map(norm).includes(w)) return canon;
-  }
-  return null;
-}
-
-type ParsedIngredient = {
-  qty: number | null;
-  unit: CanonUnit | null;
-  item: string;
-  note?: string;
-  original: string;
-};
-
-function parseIngredient(line: string): ParsedIngredient {
-  const original = line;
-  // trailing note in parentheses
-  let note: string | undefined;
-  const nm = line.match(/\(([^)]+)\)\s*$/);
-  if (nm) { note = nm[1]; line = line.slice(0, nm.index).trim(); }
-
-  const tokens = line.split(/\s+/);
-  // try first 1-2 tokens as quantity
-  const qtyTokens: string[] = [];
-  if (tokens[0]) qtyTokens.push(tokens[0]);
-  if (tokens[1] && /^[\d¼½¾⅓⅔⅛⅜⅝⅞/.-]+$/.test(tokens[1])) qtyTokens.push(tokens[1]);
-  const qtyStr = qtyTokens.join(" ");
-  const qty = firstNumberFromRange(qtyStr);
-
-  let unit: CanonUnit | null = null;
-  let i = 0;
-  if (qty != null) {
-    i = qtyTokens.length;
-    unit = canonicalUnit(tokens[i]);
-    if (unit) i += 1;
-  }
-  const item = tokens.slice(i).join(" ").trim();
-  return { qty, unit, item, note, original };
-}
-
-// ---------- Formatting ----------
-function toNiceFraction(n: number): string {
-  const whole = Math.floor(n);
-  const frac = n - whole;
-  const opts = [0, 1/8, 1/6, 1/5, 1/4, 1/3, 3/8, 1/2, 5/8, 2/3, 3/4, 5/6, 7/8];
-  let best = 0, diff = 1;
-  for (const v of opts) {
-    const d = Math.abs(frac - v);
-    if (d < diff) { diff = d; best = v; }
-  }
-  if (whole === 0 && best === 0) return "0";
-  if (best === 0) return String(whole);
-  const fracStr = ratioToString(best);
-  return whole ? `${whole} ${fracStr}` : fracStr;
-}
-function ratioToString(v: number): string {
-  const MAP: Record<number,string> = {
-    0.125:"1/8", 0.1666666667:"1/6", 0.2:"1/5", 0.25:"1/4",
-    0.3333333333:"1/3", 0.375:"3/8", 0.5:"1/2", 0.625:"5/8",
-    0.6666666667:"2/3", 0.75:"3/4", 0.8333333333:"5/6", 0.875:"7/8",
-  };
-  let bestKey = 0.5, diff = 1;
-  Object.keys(MAP).forEach(k => {
-    const key = Number(k);
-    const d = Math.abs(v - key);
-    if (d < diff) { diff = d; bestKey = key; }
-  });
-  return MAP[bestKey];
-}
-function formatNumber(n: number, preferFractions = true) {
-  if (n === 0) return "0";
-  if (preferFractions && n <= 10) return toNiceFraction(n);
-  const s = (Math.round(n * 100) / 100).toString();
-  return s.replace(/\.00$/, "").replace(/(\.\d)0$/, "$1"); // 1.50 -> 1.5, 2.00 -> 2
-}
-
-// ---------- Unit choice ----------
-function chooseVolumeUnit(baseMl: number, origin?: CanonUnit): { unit: CanonUnit, qty: number } {
-  // spoon-origin keeps spoons where it makes sense; otherwise metric ladder.
-  if (origin === "tsp" || origin === "tbsp") {
-    const tbspQty = U.tbsp.fromBase(baseMl);
-    const tspQty  = U.tsp.fromBase(baseMl);
-    if (tbspQty >= 1 && tbspQty <= 12) return { unit: "tbsp", qty: tbspQty };
-    if (tspQty < 12) return { unit: "tsp", qty: tspQty };
-    // else fallthrough to metric
-  }
-  if (baseMl >= 1000) return { unit: "l", qty: U.l.fromBase(baseMl) };
-  if (baseMl >= 100)  return { unit: "dl", qty: U.dl.fromBase(baseMl) };
-  if (baseMl >= 10)   return { unit: "cl", qty: U.cl.fromBase(baseMl) };
-  return { unit: "ml", qty: baseMl };
-}
-
-function chooseMassUnit(baseG: number): { unit: CanonUnit, qty: number } {
-  if (baseG >= 1000) return { unit: "kg", qty: U.kg.fromBase(baseG) };
-  return { unit: "g", qty: baseG };
-}
-
-function scaleAndNormalize(qty: number, unit: CanonUnit | null, factor: number) {
-  if (!unit) return { qty: qty * factor, unit: null as CanonUnit | null };
-  const def = U[unit];
-  const base = def.toBase(qty) * factor;
-  return def.dim === "volume"
-    ? chooseVolumeUnit(base, unit)
-    : chooseMassUnit(base);
-}
-
-function scaleIngredientString(str: string, factor: number): string {
-  const p = parseIngredient(str);
-  if (p.qty == null) return str;
-  const { qty, unit } = scaleAndNormalize(p.qty, p.unit, factor);
-  const preferFractions = unit === "tsp" || unit === "tbsp";
-  const qOut = formatNumber(qty, preferFractions);
-  const unitOut = unit ?? (p.unit ?? "");
-  const parts = [qOut, unitOut, p.item].filter(Boolean);
-  let line = parts.join(" ").replace(/\s+/g, " ").trim();
-  if (p.note) line += ` (${p.note})`;
-  return line;
-}
-
-// ---------- DOM wiring ----------
-function clamp(n: number, min = 1, max = 999) { return Math.max(min, Math.min(max, n)); }
 
 function init() {
-  const yieldEls = Array.from(document.querySelectorAll<HTMLElement>("[data-yield]"));
-  const scaleBtns = Array.from(document.querySelectorAll<HTMLElement>("[data-scale]"));
-  const ingEls = Array.from(document.querySelectorAll<HTMLElement>(".ingredient-text"));
+  const yieldEls = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-yield]")
+  );
+  const scaleBtns = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-scale]")
+  );
+  const ingEls = Array.from(
+    document.querySelectorAll<HTMLElement>(".ingredient-text")
+  );
 
   if (!yieldEls.length || !ingEls.length) return;
 
-  // store originals
+  // Keep original lines so scaling stays idempotent.
   for (const el of ingEls) {
     if (!el.dataset.orig) el.dataset.orig = (el.textContent || "").trim();
   }
 
+  // Determine servings "base":
+  // 1) explicit data-yield-base
+  // 2) parse number from any [data-yield] text (e.g., "4 servings")
+  // 3) fallback 1
   const base = (() => {
-    // read from the first element's dataset; fallback to 1
-    const v = parseFloat(yieldEls[0].dataset.yieldBase || "1");
-    return Number.isFinite(v) && v > 0 ? v : 1;
+    const attr = parseFloat(yieldEls[0].dataset.yieldBase || "");
+    if (Number.isFinite(attr) && attr > 0) return attr;
+    for (const el of yieldEls) {
+      const num = parseYieldServings(el.textContent || "");
+      if (num && num > 0) return num;
+    }
+    return 1;
   })();
 
+  // Current servings shown in UI (start from first numeric we see, else base)
   let current = (() => {
-    // try to read a number from the first [data-yield] text; fallback to base
     const text = (yieldEls[0].textContent || "").trim();
-    const m = text.match(/(\d+(\.\d+)?)/);
-    const n = m ? parseFloat(m[1]) : NaN;
+    const m = text.match(/(\d+([.,]\d+)?)/);
+    const n = m ? Number(m[1].replace(",", ".")) : NaN;
     return Number.isFinite(n) ? n : base;
   })();
 
-  function factor() { return current / base; }
+  const factor = () => current / base;
 
   function render() {
-    // update servings displays
-    for (const el of yieldEls) {
-      el.textContent = String(current);
-    }
-    // scale ingredients
+    // Update servings readouts (just the number; labels are in markup)
+    for (const el of yieldEls) el.textContent = String(current);
+
+    // Scale ingredients
     const f = factor();
     for (const el of ingEls) {
-      const orig = el.dataset.orig || (el.textContent || "");
+      const orig = el.dataset.orig || el.textContent || "";
       el.textContent = scaleIngredientString(orig, f);
     }
   }
@@ -241,7 +67,7 @@ function init() {
     render();
   }
 
-  // Attach listeners
+  // +/- buttons with data-scale="+" | "-"
   for (const btn of scaleBtns) {
     btn.addEventListener("click", (e) => {
       e.preventDefault();
@@ -251,7 +77,7 @@ function init() {
     });
   }
 
-  // Initial paint (ensures the second [data-yield]—which might be non-numeric—shows a number)
+  // Initial paint
   render();
 }
 

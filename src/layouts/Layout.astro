@@ -5,9 +5,11 @@ import { Image } from "astro:assets";
 import nightMode from "../assets/night-mode.png";
 import languageButton from "../assets/languageButton.png";
 import logoUrl from "../assets/logo.svg?url";
+import themeToggleUrl from "../scripts/theme-toggle.ts?url";
 
-const { lang: propLang } = Astro.props;
+const { lang: propLang, title } = Astro.props;
 const lang = propLang ?? Astro.currentLocale ?? "en";
+const BASE = import.meta.env.BASE_URL;
 ---
 
 <!DOCTYPE html>
@@ -15,7 +17,7 @@ const lang = propLang ?? Astro.currentLocale ?? "en";
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title><slot name="title" />My Site</title>
+    <title>{title ?? "Nourriture Quotidienne"}</title>
   </head>
   <body class="bg-[var(--bg)] dark:bg-[var(--bg-dark)] text-[var(--text)] dark:text-[var(--text-dark)]">
     <header>
@@ -25,7 +27,7 @@ const lang = propLang ?? Astro.currentLocale ?? "en";
             
             <!-- Logo -->
             <div class="flex items-center">
-              <a href={`/${lang}/`} class="flex items-center space-x-3" aria-label="Home">
+              <a href={`${import.meta.env.BASE_URL}${lang}/`} class="flex items-center space-x-3" aria-label="Home">
                 <img src={logoUrl} alt="Website Logo" class="h-8 w-auto" />
                 <span class="text-xl font-semibold text-[var(--text)] dark:text-[var(--text-dark)]">
                   Nourriture Quotidienne
@@ -36,13 +38,13 @@ const lang = propLang ?? Astro.currentLocale ?? "en";
             <!-- Desktop Navigation -->
             <div class="hidden md:flex items-center space-x-8">
               <a 
-                href={`/${lang}/about`} 
+                href={`${import.meta.env.BASE_URL}${lang}/about`} 
                 class="text-[var(--text-muted)] hover:text-[var(--text)] dark:text-[var(--text-muted-dark)] dark:hover:text-[var(--text-dark)] px-3 py-2 text-sm font-medium transition-colors duration-200"
               >
                 {lang === 'fr' ? 'À propos' : 'About'}
               </a>
               <a 
-                href={`/${lang}/recipes`} 
+                href={`${import.meta.env.BASE_URL}${lang}/recipes`} 
                 class="text-[var(--text-muted)] hover:text-[var(--text)] dark:text-[var(--text-muted-dark)] dark:hover:text-[var(--text-dark)] px-3 py-2 text-sm font-medium transition-colors duration-200"
               >
                 {lang === 'fr' ? 'Recettes' : 'Recipes'}
@@ -148,14 +150,14 @@ const lang = propLang ?? Astro.currentLocale ?? "en";
               <div class="flex-1 p-6">
                 <nav class="space-y-2">
                   <a 
-                    href={`/${lang}/about`} 
+                    href={`${import.meta.env.BASE_URL}${lang}/about`} 
                     class="group flex items-center px-4 py-3 text-base font-medium text-[var(--text)] dark:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] rounded-lg transition-all duration-200 transform hover:translate-x-1"
                   >
                     <span class="w-2 h-2 bg-[var(--accent)] dark:bg-[var(--accent-dark)] rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
                     {lang === 'fr' ? 'À propos' : 'About'}
                   </a>
                   <a 
-                    href={`/${lang}/recipes`} 
+                    href={`${import.meta.env.BASE_URL}${lang}/recipes`} 
                     class="group flex items-center px-4 py-3 text-base font-medium text-[var(--text)] dark:text-[var(--text-dark)] hover:bg-[var(--bg-hover)] dark:hover:bg-[var(--bg-hover-dark)] rounded-lg transition-all duration-200 transform hover:translate-x-1"
                   >
                     <span class="w-2 h-2 bg-[var(--accent)] dark:bg-[var(--accent-dark)] rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></span>
@@ -225,31 +227,8 @@ const lang = propLang ?? Astro.currentLocale ?? "en";
       </div>
     </footer>
 
-    <script>
-      // Theme toggle functionality
-      function applyTheme(isDark) {
-        document.documentElement.classList.toggle('dark', isDark);
-      }
-      
-      function toggleTheme() {
-        const isDark = !document.documentElement.classList.contains('dark');
-        applyTheme(isDark);
-        try {
-          localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        } catch {}
-      }
-      
-      // Initialize theme from localStorage
-      try {
-        const savedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        applyTheme(savedTheme === 'dark' || (savedTheme === null && prefersDark));
-      } catch {}
-      
-      // Add theme toggle listeners
-      document.querySelectorAll('.js-theme-toggle').forEach(btn => {
-        btn.addEventListener('click', toggleTheme);
-      });
+    <script define:vars={{ base: BASE }}>
+      // Theme handled by /src/scripts/theme-toggle.ts (loaded below)
 
       // Language switcher functionality
       const SUPPORTED = ['en', 'fr'];
@@ -261,7 +240,7 @@ const lang = propLang ?? Astro.currentLocale ?? "en";
         const parts = pathname.split('/');
         const first = parts[1];
         const tail = SUPPORTED.includes(first) ? parts.slice(2).join('/') : pathname.replace(/^\//, '');
-        return `/${newLang}/${tail}`.replace(/\/+/g, '/');
+        return `${base}${newLang}/${tail}`.replace(/\/+/g, '/');
       }
 
       // Desktop language dropdown
@@ -365,5 +344,9 @@ const lang = propLang ?? Astro.currentLocale ?? "en";
         link.addEventListener('click', closeMobileMenuFunc);
       });
     </script>
+
+    <!-- Global theme toggle script -->
+    <script type="module" src={themeToggleUrl}></script>
+
   </body>
 </html>

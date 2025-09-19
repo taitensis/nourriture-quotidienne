@@ -26,7 +26,7 @@ pnpm-debug.log*
 # ── OS / Editors
 .DS_Store
 .idea/
-# .vscode/             # (optional) ignore your local VS Code settings
+.vscode/             # (optional) ignore your local VS Code settings
 
 # ── Tests (optional; if you add them later)
 coverage/
