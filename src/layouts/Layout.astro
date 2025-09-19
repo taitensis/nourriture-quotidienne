@@ -1,4 +1,5 @@
 ---
+// src/layouts/Layout.astro
 import "../styles/global.css";
 import "../styles/tailwind.css";
 import { Image } from "astro:assets";
@@ -7,25 +8,33 @@ import languageButton from "../assets/languageButton.png";
 import logoUrl from "../assets/logo.svg?url";
 import themeToggleUrl from "../scripts/theme-toggle.ts?url";
 
-const { lang: propLang, title } = Astro.props;
+const { lang: propLang, title, mainClass } = Astro.props;
 const lang = propLang ?? Astro.currentLocale ?? "en";
 const RAW_BASE = import.meta.env.BASE_URL;
-const BASE = RAW_BASE.endsWith('/') ? RAW_BASE : RAW_BASE + '/';
+const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : RAW_BASE + "/";
 ---
-
 <!DOCTYPE html>
 <html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title ?? "Nourriture Quotidienne"}</title>
+    <meta name="color-scheme" content="light dark" />
+    <!-- Prevent light->dark flash -->
+    <script>
+      try {
+        var t = localStorage.getItem('theme');
+        if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      } catch {}
+    </script>
   </head>
   <body class="bg-[var(--bg)] dark:bg-[var(--bg-dark)] text-[var(--text)] dark:text-[var(--text-dark)]">
     <header>
       <nav class="bg-[var(--bg)] dark:bg-[var(--bg-dark)] shadow-sm border-b border-[var(--border)] dark:border-[var(--border-dark)] backdrop-blur-sm">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between items-center h-16">
-            
             <!-- Logo -->
             <div class="flex items-center">
               <a href={`${BASE}${lang}/`} class="flex items-center space-x-3" aria-label="Home">
@@ -54,7 +63,6 @@ const BASE = RAW_BASE.endsWith('/') ? RAW_BASE : RAW_BASE + '/';
 
             <!-- Desktop Controls -->
             <div class="hidden md:flex items-center space-x-4">
-              
               <!-- Language Dropdown -->
               <div class="relative" id="lang-dropdown">
                 <button 
@@ -169,7 +177,6 @@ const BASE = RAW_BASE.endsWith('/') ? RAW_BASE : RAW_BASE + '/';
 
               <!-- Bottom Controls -->
               <div class="border-t border-[var(--border)] dark:border-[var(--border-dark)] p-6 space-y-6">
-                
                 <!-- Language Selection -->
                 <div>
                   <h3 class="text-sm font-medium text-[var(--text-muted)] dark:text-[var(--text-muted-dark)] mb-3 uppercase tracking-wider">
@@ -212,7 +219,7 @@ const BASE = RAW_BASE.endsWith('/') ? RAW_BASE : RAW_BASE + '/';
       </nav>
     </header>
 
-    <main class="bg-[var(--bg)] dark:bg-[var(--bg-dark)] text-[var(--text)] dark:text-[var(--text-dark)] prose prose-slate dark:prose-invert max-w-none">
+    <main class={`bg-[var(--bg)] dark:bg-[var(--bg-dark)] text-[var(--text)] dark:text-[var(--text-dark)] prose prose-slate dark:prose-invert max-w-none ${mainClass ?? ""}`}>
       <div class="container mx-auto px-4 py-8">
         <slot />
       </div>
@@ -222,7 +229,7 @@ const BASE = RAW_BASE.endsWith('/') ? RAW_BASE : RAW_BASE + '/';
       <div class="mx-auto max-w-7xl px-4 py-8">
         <div class="text-center">
           <small class="text-[var(--text-muted)] dark:text-[var(--text-muted-dark)]">
-            © 2025, Maxime Coïc · Built with ❤️
+            © 2025, Maxime C. · Built with ❤️
           </small>
         </div>
       </div>
@@ -231,123 +238,105 @@ const BASE = RAW_BASE.endsWith('/') ? RAW_BASE : RAW_BASE + '/';
     <script define:vars={{ base: BASE }}>
       // Theme handled by /src/scripts/theme-toggle.ts (loaded below)
 
-      // Language switcher functionality
-      const SUPPORTED = ['en', 'fr'];
-      const langDropdown = document.getElementById('lang-dropdown');
-      const langSwitcher = document.getElementById('languageSwitcher');
-      const langMenu = document.getElementById('lang-menu');
+      // --- Language switcher (isolated; won't break menu if it fails) ---
+      try {
+        const SUPPORTED = ['en', 'fr'];
+        const langDropdown = document.getElementById('lang-dropdown');
+        const langSwitcher = document.getElementById('languageSwitcher');
+        const langMenu = document.getElementById('lang-menu');
 
-      function replaceLangInPath(pathname, newLang) {
-        const parts = pathname.split('/');
-        const first = parts[1];
-        const tail = SUPPORTED.includes(first) ? parts.slice(2).join('/') : pathname.replace(/^\//, '');
-        return `${base}${newLang}/${tail}`.replace(/\/+/g, '/');
-      }
+        const b = base.endsWith('/') ? base : base + '/';
+        const stripBase = (pathname) =>
+          pathname.startsWith(b) ? pathname.slice(b.length - 1).replace(/^\/+/, '') : pathname.replace(/^\/+/, '');
+        const replaceLangInPath = (pathname, newLang) => {
+          const stripped = stripBase(pathname);           // e.g. "en/recipes/foo"
+          const parts = stripped.split('/').filter(Boolean);
+          const head = parts[0];
+          const tail = SUPPORTED.includes(head) ? parts.slice(1).join('/') : parts.join('/');
+          const out  = `${b}${newLang}/${tail}`;
+          return out.replace(/\/+/g, '/');
+        };
 
-      // Desktop language dropdown
-      langSwitcher?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const isOpen = !langMenu.classList.contains('hidden');
-        langMenu.classList.toggle('hidden');
-        langSwitcher.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
-      });
-
-      // Close dropdown when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!langDropdown?.contains(e.target)) {
-          langMenu?.classList.add('hidden');
-          langSwitcher?.setAttribute('aria-expanded', 'false');
-        }
-      });
-
-      // Language selection (desktop + mobile)
-      document.querySelectorAll('[data-lang]').forEach((btn) => {
-        btn.addEventListener('click', (e) => {
-          const newLang = e.currentTarget.getAttribute('data-lang');
-          if (!newLang || !SUPPORTED.includes(newLang)) return;
-          
-          const { pathname, search, hash } = window.location;
-          const nextPath = replaceLangInPath(pathname, newLang);
-          
-          try { 
-            localStorage.setItem('lang', newLang); 
-          } catch {}
-          
-          window.location.assign(nextPath + search + hash);
+        // Dropdown open/close
+        langSwitcher?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const isOpen = !langMenu.classList.contains('hidden');
+          langMenu.classList.toggle('hidden');
+          langSwitcher.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
         });
-      });
+        document.addEventListener('click', (e) => {
+          if (!langDropdown?.contains(e.target)) {
+            langMenu?.classList.add('hidden');
+            langSwitcher?.setAttribute('aria-expanded', 'false');
+          }
+        });
 
-      // Mobile menu functionality
-      const menuToggle = document.getElementById('menu-toggle');
-      const mobileMenu = document.getElementById('mobile-menu');
-      const mobileMenuPanel = document.getElementById('mobile-menu-panel');
-      const closeMobileMenu = document.getElementById('close-mobile-menu');
-      const mobileBackdrop = document.getElementById('mobile-backdrop');
-
-      function openMobileMenu() {
-        // Show the overlay
-        mobileMenu.classList.add('pointer-events-auto');
-        
-        // Animate backdrop
-        mobileBackdrop.classList.add('pointer-events-auto', 'opacity-100');
-        mobileBackdrop.classList.remove('pointer-events-none', 'opacity-0');
-        
-        // Animate panel
-        mobileMenuPanel.classList.remove('translate-x-full');
-        mobileMenuPanel.classList.add('translate-x-0');
-        
-        // Update button state
-        menuToggle.setAttribute('aria-expanded', 'true');
-        
-        // Prevent body scroll
-        document.body.style.overflow = 'hidden';
-        
-        // Focus the close button for accessibility
-        setTimeout(() => closeMobileMenu?.focus(), 150);
+        // Change language
+        document.querySelectorAll('[data-lang]').forEach((btn) => {
+          btn.addEventListener('click', (e) => {
+            const newLang = e.currentTarget.getAttribute('data-lang');
+            if (!newLang || !SUPPORTED.includes(newLang)) return;
+            const { pathname, search, hash } = window.location;
+            const nextPath = replaceLangInPath(pathname, newLang);
+            try { localStorage.setItem('lang', newLang); } catch {}
+            window.location.assign(nextPath + search + hash);
+          });
+        });
+      } catch (err) {
+        console.warn('Lang switcher init failed:', err);
       }
 
-      function closeMobileMenuFunc() {
-        // Animate out
-        mobileBackdrop.classList.add('pointer-events-none', 'opacity-0');
-        mobileBackdrop.classList.remove('pointer-events-auto', 'opacity-100');
-        
-        mobileMenuPanel.classList.add('translate-x-full');
-        mobileMenuPanel.classList.remove('translate-x-0');
-        
-        // Update button state
-        menuToggle.setAttribute('aria-expanded', 'false');
-        
-        // Restore body scroll
-        document.body.style.overflow = '';
-        
-        // Hide overlay after animation
-        setTimeout(() => {
-          mobileMenu.classList.remove('pointer-events-auto');
-        }, 300);
-        
-        // Return focus
-        menuToggle?.focus();
-      }
+      // --- Mobile menu (robust & isolated) ---
+      try {
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const panel = document.getElementById('mobile-menu-panel');
+        const closeBtn = document.getElementById('close-mobile-menu');
+        const backdrop = document.getElementById('mobile-backdrop');
 
-      menuToggle?.addEventListener('click', openMobileMenu);
-      closeMobileMenu?.addEventListener('click', closeMobileMenuFunc);
-      mobileBackdrop?.addEventListener('click', closeMobileMenuFunc);
+        if (menuToggle && mobileMenu && panel && backdrop) {
+          // Prevent body scroll reliably (iOS): toggle on <html>
+          const lockScroll = () => document.documentElement.classList.add('overflow-hidden');
+          const unlockScroll = () => document.documentElement.classList.remove('overflow-hidden');
 
-      // Close mobile menu on escape key
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && mobileMenu.classList.contains('pointer-events-auto')) {
-          closeMobileMenuFunc();
+          const open = () => {
+            mobileMenu.classList.add('pointer-events-auto');
+            backdrop.classList.remove('pointer-events-none', 'opacity-0');
+            backdrop.classList.add('pointer-events-auto', 'opacity-100');
+            panel.classList.remove('translate-x-full');
+            panel.classList.add('translate-x-0');
+            mobileMenu.setAttribute('data-open', 'true');
+            menuToggle.setAttribute('aria-expanded', 'true');
+            lockScroll();
+            setTimeout(() => closeBtn?.focus(), 150);
+          };
+          const close = () => {
+            backdrop.classList.add('pointer-events-none', 'opacity-0');
+            backdrop.classList.remove('pointer-events-auto', 'opacity-100');
+            panel.classList.add('translate-x-full');
+            panel.classList.remove('translate-x-0');
+            mobileMenu.setAttribute('data-open', 'false');
+            menuToggle.setAttribute('aria-expanded', 'false');
+            unlockScroll();
+            setTimeout(() => mobileMenu.classList.remove('pointer-events-auto'), 300);
+            menuToggle?.focus();
+          };
+
+          menuToggle.addEventListener('click', (e) => { e.preventDefault(); open(); });
+          closeBtn?.addEventListener('click', (e) => { e.preventDefault(); close(); });
+          backdrop.addEventListener('click', (e) => { e.preventDefault(); close(); });
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && mobileMenu.getAttribute('data-open') === 'true') close();
+          });
+          // Close when clicking any link inside the panel
+          panel.querySelectorAll('a').forEach(a => a.addEventListener('click', () => close()));
         }
-      });
-
-      // Close mobile menu when clicking on links
-      mobileMenu?.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', closeMobileMenuFunc);
-      });
+      } catch (err) {
+        console.warn('Mobile menu init failed:', err);
+      }
     </script>
 
     <!-- Global theme toggle script -->
     <script type="module" src={themeToggleUrl}></script>
-
   </body>
 </html>
