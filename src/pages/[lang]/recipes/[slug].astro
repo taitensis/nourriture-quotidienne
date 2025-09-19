@@ -285,44 +285,4 @@ const toFrac = (n: number) => {
 
   <!-- External, bundled scripts -->
   <script type="module" src={scaleUrl}></script>
-  
-  <!-- Recipe-specific script -->
-  <script define:vars={{ lang }}>
-    // Sticky recipe title for this recipe page
-    const recipeTitle = document.getElementById('recipe-title');
-    if (recipeTitle) {
-      // Create sticky title element
-      const stickyTitle = document.createElement('div');
-      stickyTitle.className = 'recipe-title-sticky';
-      stickyTitle.innerHTML = `
-        <div class="container">
-          <h4>${recipeTitle.textContent}</h4>
-          </nav>
-        </div>
-      `;
-      document.body.appendChild(stickyTitle);
-
-      // Show/hide sticky title based on scroll
-      let heroHeight = recipeTitle.offsetTop + recipeTitle.offsetHeight;
-      
-      window.addEventListener('scroll', () => {
-        if (window.scrollY > heroHeight) {
-          stickyTitle.classList.add('show');
-        } else {
-          stickyTitle.classList.remove('show');
-        }
-      });
-
-      // Smooth scroll to sections
-      stickyTitle.querySelectorAll('a[href^="#"]').forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          const target = document.querySelector(link.getAttribute('href'));
-          if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        });
-      });
-    }
-  </script>
 </Layout>
