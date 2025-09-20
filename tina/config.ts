@@ -14,8 +14,6 @@ export default defineConfig({
   build: {
     publicFolder: "public",
     outputFolder: "admin",
-    // Fix: Add leading slash to match Astro's base config
-    basePath: "/nourriture-quotidienne",
   },
 
   // Repo-backed media: files go to /public/uploads, referenced as /uploads/...
