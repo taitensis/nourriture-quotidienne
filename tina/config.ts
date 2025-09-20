@@ -5,14 +5,15 @@ const LOCALES = ["en", "fr"] as const;
 const branch = process.env.TINA_PUBLIC_BRANCH || process.env.HEAD || "main";
 
 export default defineConfig({
-  clientId: process.env.TINA_CLIENT_ID as string, // <— matches your secret
-  token: process.env.TINA_TOKEN as string, // <— matches your secret
+  clientId: process.env.TINA_CLIENT_ID as string,
+  token: process.env.TINA_TOKEN as string,
   branch,
 
   // Build the Tina admin app into /public/admin so Astro ships it
   build: {
     publicFolder: "public",
     outputFolder: "admin",
+    // Fix: Add leading slash to match Astro's base config
     basePath: "/nourriture-quotidienne",
   },
 

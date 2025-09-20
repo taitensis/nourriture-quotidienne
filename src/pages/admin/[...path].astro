@@ -1,0 +1,43 @@
+---
+// This creates static redirect pages for common admin routes
+// Since GitHub Pages is static-only, we pre-generate these routes
+
+export async function getStaticPaths() {
+  // Pre-generate common admin routes that TinaCMS might use
+  const adminRoutes = [
+    'collections',
+    'collections/recipe', 
+    'media',
+    'login',
+    'logout',
+    // Add more routes as needed based on your TinaCMS usage
+  ];
+  
+  return adminRoutes.map(route => ({
+    params: { path: route }
+  }));
+}
+
+const { path } = Astro.params;
+
+// Client-side redirect to admin index
+// TinaCMS will handle the actual routing from there
+---
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Redirecting to TinaCMS Admin...</title>
+    <script>
+        // Immediate redirect to admin index
+        // TinaCMS will handle internal routing via client-side JavaScript
+        window.location.replace('/nourriture-quotidienne/admin/index.html');
+    </script>
+    <meta http-equiv="refresh" content="0; url=/nourriture-quotidienne/admin/index.html">
+</head>
+<body>
+    <p>Redirecting to TinaCMS admin interface...</p>
+    <p>If you are not redirected automatically, <a href="/nourriture-quotidienne/admin/index.html">click here</a>.</p>
+</body>
+</html>
