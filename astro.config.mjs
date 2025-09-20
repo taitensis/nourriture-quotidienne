@@ -8,6 +8,6 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  site: "https://taitensis.github.io",
-  base: "/nourriture-quotidienne",
+  site: "https://taitensis.github.io/nourriture-quotidienne",
+  base: "/nourriture-quotidienne/",
 });

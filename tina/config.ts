@@ -4,17 +4,17 @@ import { defineConfig } from "tinacms";
 // Keep your supported locales here (used by the slugify + field options)
 const LOCALES = ["en", "fr"] as const;
 
-// Prefer an explicit env var; fall back to the current CI branch; then "main"
 const branch =
-  process.env.NEXT_PUBLIC_TINA_BRANCH ||
-  process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF ||
-  process.env.HEAD ||
-  "";
+  process.env.TINA_PUBLIC_BRANCH ||
+  process.env.VERCEL_GIT_COMMIT_REF || // Vercel
+  process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF || // if set by mistake, still works
+  process.env.HEAD || // Netlify/CI
+  "main";
 
 export default defineConfig({
-  // Tina Cloud auth (add these in .env locally and Actions secrets in CI)
-  token: process.env.TINA_TOKEN,
+  // Tina Cloud auth (from env)
   clientId: process.env.NEXT_PUBLIC_TINA_CLIENT_ID,
+  token: process.env.TINA_TOKEN,
   branch,
 
   // Build the Tina admin app into /public/admin so Astro ships it
@@ -39,7 +39,6 @@ export default defineConfig({
         path: "src/content/recipes",
         format: "md",
         ui: {
-          // Create files under <lang>/<slug>.md (e.g. en/five-spice-veggie-tofu-stir-fry.md)
           filename: {
             slugify: (values) => {
               const lang = String(values?.lang || "en").toLowerCase();
@@ -52,7 +51,6 @@ export default defineConfig({
           },
         },
         fields: [
-          // Basics
           {
             type: "string",
             name: "title",
@@ -60,11 +58,7 @@ export default defineConfig({
             isTitle: true,
             required: true,
           },
-
-          // Your Astro schema uses z.date(); Tina "datetime" will serialize a valid date string
           { type: "datetime", name: "date", label: "Date" },
-
-          // Language & tags
           {
             type: "string",
             name: "lang",
@@ -73,8 +67,6 @@ export default defineConfig({
             required: true,
           },
           { type: "string", name: "tags", label: "Tags", list: true },
-
-          // Times (strings like "15 min" are fine)
           {
             type: "object",
             name: "time",
@@ -85,37 +77,24 @@ export default defineConfig({
               { type: "string", name: "total", label: "Total" },
             ],
           },
-
-          // Yield controls (UI text + optional numeric helpers used by your scaler)
           {
             type: "string",
             name: "yield",
             label: "Yield / Servings",
             required: true,
           },
-          {
-            type: "number",
-            name: "yield_base",
-            label: "Yield Base (number)",
-            required: false,
-          },
+          { type: "number", name: "yield_base", label: "Yield Base (number)" },
           {
             type: "number",
             name: "yield_default",
             label: "Yield Default (number)",
-            required: false,
           },
-
-          // Difficulty
           {
             type: "string",
             name: "difficulty",
             label: "Difficulty",
             options: ["easy", "medium", "hard"],
-            required: false,
           },
-
-          // Images
           {
             type: "object",
             name: "images",
@@ -123,20 +102,15 @@ export default defineConfig({
             list: true,
             fields: [
               { type: "image", name: "src", label: "Image" },
-              { type: "string", name: "alt", label: "Alt", required: false },
+              { type: "string", name: "alt", label: "Alt" },
             ],
           },
-
-          // Optional extra title lines
           {
             type: "string",
             name: "title_lines",
             label: "Title Lines",
             list: true,
-            required: false,
           },
-
-          // Ingredients (grouped, required; matches your zod schema)
           {
             type: "object",
             name: "ingredient_groups",
@@ -144,12 +118,7 @@ export default defineConfig({
             list: true,
             required: true,
             fields: [
-              {
-                type: "string",
-                name: "title",
-                label: "Group Title",
-                required: false,
-              },
+              { type: "string", name: "title", label: "Group Title" },
               {
                 type: "string",
                 name: "ingredients",
@@ -158,8 +127,6 @@ export default defineConfig({
               },
             ],
           },
-
-          // Steps & notes
           {
             type: "string",
             name: "steps",
@@ -167,15 +134,7 @@ export default defineConfig({
             list: true,
             required: true,
           },
-          {
-            type: "string",
-            name: "notes",
-            label: "Notes",
-            list: true,
-            required: false,
-          },
-
-          // i18n key
+          { type: "string", name: "notes", label: "Notes", list: true },
           {
             type: "string",
             name: "translation_key",

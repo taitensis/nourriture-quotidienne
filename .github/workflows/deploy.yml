@@ -1,3 +1,4 @@
+# .github/workflows/deploy.yml
 name: Deploy to GitHub Pages
 
 on:
@@ -13,23 +14,38 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      # Pass Tina envs to BOTH build steps
+      NEXT_PUBLIC_TINA_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_TINA_CLIENT_ID }}
+      TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
+      # Use the branch being built (or hardcode "main")
+      TINA_PUBLIC_BRANCH: ${{ github.ref_name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Build with Astro (Tina env included)
-        uses: withastro/action@v3
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: "npm"
 
+      - name: Install deps
+        run: npm ci
+
+      # 1) Build Tina admin into public/admin (needs envs)
       - name: Build TinaCMS
-        env:
-          TINA_PUBLIC_CLIENT_ID: ${{ secrets.TINA_PUBLIC_CLIENT_ID }}
-          TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
         run: npx tinacms build
+
+      # 2) Build Astro (now includes public/admin in the final site)
+      - name: Build Astro
+        run: npx astro build
+
+      # 3) Upload the built site (./dist) for Pages
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
 
   deploy:
     needs: build
@@ -38,6 +54,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
