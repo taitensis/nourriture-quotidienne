@@ -1,20 +1,12 @@
-// .tina/config.ts
 import { defineConfig } from "tinacms";
 
-// Keep your supported locales here (used by the slugify + field options)
 const LOCALES = ["en", "fr"] as const;
 
-const branch =
-  process.env.TINA_PUBLIC_BRANCH ||
-  process.env.VERCEL_GIT_COMMIT_REF || // Vercel
-  process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF || // if set by mistake, still works
-  process.env.HEAD || // Netlify/CI
-  "main";
+const branch = process.env.TINA_PUBLIC_BRANCH || process.env.HEAD || "main";
 
 export default defineConfig({
-  // Tina Cloud auth (from env)
-  clientId: process.env.TINA_CLIENT_ID,
-  token: process.env.TINA_TOKEN,
+  clientId: process.env.TINA_CLIENT_ID as string, // <— matches your secret
+  token: process.env.TINA_TOKEN as string, // <— matches your secret
   branch,
 
   // Build the Tina admin app into /public/admin so Astro ships it

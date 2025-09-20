@@ -15,11 +15,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      # Pass Tina envs to BOTH build steps
-      NEXT_PUBLIC_TINA_CLIENT_ID: ${{ secrets.TINA_CLIENT_ID }}
+      # Must match .tina/config.ts exactly:
+      TINA_CLIENT_ID: ${{ secrets.TINA_CLIENT_ID }}
       TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
-      # Use the branch being built (or hardcode "main")
-      TINA_PUBLIC_BRANCH: ${{ github.ref_name }}
+      TINA_PUBLIC_BRANCH: ${{ github.ref_name }} # or "main"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,15 +32,22 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      # 1) Build Tina admin into public/admin (needs envs)
+      - name: Verify Tina envs (no secrets printed)
+        shell: bash
+        run: |
+          [[ -n "$TINA_CLIENT_ID" ]] || { echo "❌ TINA_CLIENT_ID is missing"; exit 1; }
+          [[ -n "$TINA_TOKEN" ]] || { echo "❌ TINA_TOKEN is missing"; exit 1; }
+          echo "✅ TINA_CLIENT_ID length: ${#TINA_CLIENT_ID}"
+          echo "✅ TINA_TOKEN length: ${#TINA_TOKEN}"
+
+      # 1) Build Tina admin into public/admin
       - name: Build TinaCMS
         run: npx tinacms build
 
-      # 2) Build Astro (now includes public/admin in the final site)
+      # 2) Build Astro (picks up public/admin)
       - name: Build Astro
         run: npx astro build
 
-      # 3) Upload the built site (./dist) for Pages
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
