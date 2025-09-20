@@ -40,6 +40,9 @@ jobs:
           echo "✅ TINA_CLIENT_ID length: ${#TINA_CLIENT_ID}"
           echo "✅ TINA_TOKEN length: ${#TINA_TOKEN}"
 
+      - name: Clean old admin
+        run: rm -rf public/admin
+
       # 1) Build Tina admin into public/admin
       - name: Build TinaCMS
         run: npx tinacms build
