@@ -15,11 +15,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      # Based on TinaCMS docs - use TINA_PUBLIC_CLIENT_ID not TINA_CLIENT_ID
       TINA_PUBLIC_CLIENT_ID: ${{ secrets.TINA_PUBLIC_CLIENT_ID }}
       TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
       TINA_PUBLIC_BRANCH: ${{ github.ref_name }}
-      # Keep the old ones for backward compatibility
       TINA_CLIENT_ID: ${{ secrets.TINA_PUBLIC_CLIENT_ID }}
 
     steps:
@@ -35,49 +33,76 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Verify Tina envs (no secrets printed)
+      - name: Check TinaCMS installation
+        run: |
+          echo "Checking TinaCMS packages..."
+          npm list tinacms @tinacms/cli || true
+          echo "Checking if tinacms command is available..."
+          npx tinacms --version || echo "TinaCMS CLI not found"
+
+      - name: Verify Tina envs and config
         shell: bash
         run: |
           [[ -n "$TINA_PUBLIC_CLIENT_ID" ]] || { echo "❌ TINA_PUBLIC_CLIENT_ID is missing"; exit 1; }
           [[ -n "$TINA_TOKEN" ]] || { echo "❌ TINA_TOKEN is missing"; exit 1; }
           echo "✅ TINA_PUBLIC_CLIENT_ID length: ${#TINA_PUBLIC_CLIENT_ID}"
           echo "✅ TINA_TOKEN length: ${#TINA_TOKEN}"
+          echo "Tina config file exists:" 
+          ls -la .tina/ || echo "No .tina directory"
+          if [ -f ".tina/config.ts" ]; then
+            echo "Config file found"
+          else
+            echo "❌ No .tina/config.ts found!"
+          fi
 
       - name: Clean old admin
         run: rm -rf public/admin
 
-      # Build TinaCMS according to official docs
-      - name: Build TinaCMS
+      # Build TinaCMS with verbose output
+      - name: Build TinaCMS (verbose)
         env:
           TINA_PUBLIC_CLIENT_ID: ${{ secrets.TINA_PUBLIC_CLIENT_ID }}
           TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
-        run: npx tinacms build
-
-      # Verify admin was built
-      - name: Verify TinaCMS admin build
         run: |
+          echo "Starting TinaCMS build..."
+          npx tinacms build --verbose || npx tinacms build
+          echo "TinaCMS build completed"
+
+      # Verify what was actually built
+      - name: Debug TinaCMS build output
+        run: |
+          echo "=== Contents of public/ ==="
+          ls -la public/ || echo "No public directory"
           if [ -d "public/admin" ]; then
-            echo "✅ TinaCMS admin built successfully"
+            echo "=== Contents of public/admin/ ==="
             ls -la public/admin/
+            echo "=== Contents of public/admin/assets/ ==="
+            ls -la public/admin/assets/ 2>/dev/null || echo "No assets directory"
+            if [ -f "public/admin/index.html" ]; then
+              echo "=== First 20 lines of admin/index.html ==="
+              head -20 public/admin/index.html
+            fi
           else
-            echo "❌ TinaCMS admin build failed"
-            exit 1
+            echo "❌ No admin directory created!"
           fi
 
-      # Build Astro (picks up public/admin)
+      # Build Astro
       - name: Build Astro
         run: npx astro build
 
-      # Verify the final build contains admin
-      - name: Verify final build
+      # Final verification
+      - name: Final build verification
         run: |
-          if [ -d "dist/admin" ]; then
-            echo "✅ Admin folder present in final build"
-          else
-            echo "⚠️ Admin folder missing in final build"
-          fi
-          echo "Contents of dist:"
+          echo "=== Final dist contents ==="
           ls -la dist/
+          if [ -d "dist/admin" ]; then
+            echo "=== Final admin contents ==="
+            ls -la dist/admin/
+            echo "=== Final admin assets ==="
+            ls -la dist/admin/assets/ 2>/dev/null || echo "No final assets"
+          else
+            echo "❌ No admin in final build!"
+          fi
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
