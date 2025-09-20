@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Pass Tina envs to BOTH build steps
-      NEXT_PUBLIC_TINA_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_TINA_CLIENT_ID }}
+      NEXT_PUBLIC_TINA_CLIENT_ID: ${{ secrets.TINA_CLIENT_ID }}
       TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
       # Use the branch being built (or hardcode "main")
       TINA_PUBLIC_BRANCH: ${{ github.ref_name }}

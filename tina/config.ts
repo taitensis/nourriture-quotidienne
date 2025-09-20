@@ -13,7 +13,7 @@ const branch =
 
 export default defineConfig({
   // Tina Cloud auth (from env)
-  clientId: process.env.NEXT_PUBLIC_TINA_CLIENT_ID,
+  clientId: process.env.TINA_CLIENT_ID,
   token: process.env.TINA_TOKEN,
   branch,
 
