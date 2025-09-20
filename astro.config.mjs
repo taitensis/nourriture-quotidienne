@@ -4,7 +4,8 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://taitensis.github.io/nourriture-quotidienne",
+  site: "https://taitensis.github.io",
+  base: "/nourriture-quotidienne",
   // Keep as static for GitHub Pages
   vite: {
     plugins: [tailwindcss()],

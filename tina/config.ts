@@ -14,6 +14,10 @@ export default defineConfig({
   build: {
     publicFolder: "public",
     outputFolder: "admin",
+    // IMPORTANT: This needs to match your GitHub Pages URL structure exactly
+    basePath: "/nourriture-quotidienne/admin",
+    // Add this to ensure assets are properly referenced
+    publicPath: "/nourriture-quotidienne/admin/",
   },
 
   // Repo-backed media: files go to /public/uploads, referenced as /uploads/...
