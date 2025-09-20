@@ -5,7 +5,8 @@ const LOCALES = ["en", "fr"] as const;
 const branch = process.env.TINA_PUBLIC_BRANCH || process.env.HEAD || "main";
 
 export default defineConfig({
-  clientId: process.env.TINA_CLIENT_ID as string,
+  clientId:
+    process.env.TINA_PUBLIC_CLIENT_ID || (process.env.TINA_CLIENT_ID as string),
   token: process.env.TINA_TOKEN as string,
   branch,
 

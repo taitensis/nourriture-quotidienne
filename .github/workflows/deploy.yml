@@ -15,13 +15,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      # Must match .tina/config.ts exactly:
-      TINA_CLIENT_ID: ${{ secrets.TINA_CLIENT_ID }}
+      # Based on TinaCMS docs - use TINA_PUBLIC_CLIENT_ID not TINA_CLIENT_ID
+      TINA_PUBLIC_CLIENT_ID: ${{ secrets.TINA_PUBLIC_CLIENT_ID }}
       TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
       TINA_PUBLIC_BRANCH: ${{ github.ref_name }}
-      # Add these for client-side access:
-      PUBLIC_TINA_CLIENT_ID: ${{ secrets.TINA_CLIENT_ID }}
-      PUBLIC_TINA_BRANCH: ${{ github.ref_name }}
+      # Keep the old ones for backward compatibility
+      TINA_CLIENT_ID: ${{ secrets.TINA_PUBLIC_CLIENT_ID }}
 
     steps:
       - name: Checkout
@@ -39,16 +38,19 @@ jobs:
       - name: Verify Tina envs (no secrets printed)
         shell: bash
         run: |
-          [[ -n "$TINA_CLIENT_ID" ]] || { echo "❌ TINA_CLIENT_ID is missing"; exit 1; }
+          [[ -n "$TINA_PUBLIC_CLIENT_ID" ]] || { echo "❌ TINA_PUBLIC_CLIENT_ID is missing"; exit 1; }
           [[ -n "$TINA_TOKEN" ]] || { echo "❌ TINA_TOKEN is missing"; exit 1; }
-          echo "✅ TINA_CLIENT_ID length: ${#TINA_CLIENT_ID}"
+          echo "✅ TINA_PUBLIC_CLIENT_ID length: ${#TINA_PUBLIC_CLIENT_ID}"
           echo "✅ TINA_TOKEN length: ${#TINA_TOKEN}"
 
       - name: Clean old admin
         run: rm -rf public/admin
 
-      # Build Tina admin into public/admin
+      # Build TinaCMS according to official docs
       - name: Build TinaCMS
+        env:
+          TINA_PUBLIC_CLIENT_ID: ${{ secrets.TINA_PUBLIC_CLIENT_ID }}
+          TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
         run: npx tinacms build
 
       # Verify admin was built
