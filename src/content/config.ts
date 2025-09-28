@@ -6,6 +6,9 @@ const recipes = defineCollection({
     // schema for frontmatter validation
     title: z.string(), // e.g. "Chocolate Chip Cookies"
     date: z.date(), // e.g. "2023-10-05"
+    featured: z.boolean().optional(),
+    month: z.number().int().min(1).max(12).optional(),
+    season: z.enum(['winter', 'spring', 'summer', 'autumn']).optional(),
     description: z.string().optional(), // e.g. "Delicious homemade chocolate chip cookies."
     lang: z.enum(['en', 'fr']).default('en'), // language of the recipe
     yield: z
