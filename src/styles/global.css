@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&display=swap&subset=latin,latin-ext');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
@@ -129,9 +129,9 @@
   --sidebar-ring: oklch(0.67 0.17 153.85);
 
   /* Typography */
-  --font-sans: 'Inter', system-ui, Arial, sans-serif;
-  --font-serif: 'Libre Baskerville', ui-serif, Times, serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, 'Consolas', monospace;
+  --font-sans: 'Noto Sans', sans-serif;
+  --font-serif: 'Noto Serif', serif;
+  --font-mono: 'Noto Sans Mono', monospace;
 
   /* Spacing Scale */
   --spacing-2xs: 0.125rem; /* 2px */
