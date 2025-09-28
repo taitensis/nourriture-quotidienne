@@ -1,0 +1,220 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { Badge } from '@/components/ui/badge';
+import { Typography } from '@/components/ui/typography';
+import RecipeSections from '@/components/RecipeSections.tsx';
+import { t, DEFAULT_LOCALE, type Locale } from '@/i18n/ui';
+
+export interface Props {
+  entry: any; // Recipe entry from Astro content
+  imageOnRight?: boolean;
+}
+
+const { entry, imageOnRight = true } = Astro.props;
+const data = entry.data as any;
+
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+
+// Base path for GitHub Pages
+const base = import.meta.env.BASE_URL;
+
+// Derived values
+const ig = data.ingredient_groups ?? [];
+const st = data.steps ?? [];
+const nt = data.notes ?? [];
+
+const slugify = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
+const cover = data.images?.[0]?.src ?? null;
+const coverSrc = cover ? (cover.startsWith('/') ? base + cover.slice(1) : cover) : null;
+
+const timeParts = [
+  data.time?.prep ? `${t('recipes.prep')} ${data.time.prep}m` : null,
+  data.time?.cook ? `${t('recipes.cook')} ${data.time.cook}m` : null,
+  data.time?.total ? `${t('recipes.total')} ${data.time.total}m` : null,
+].filter(Boolean);
+
+const yieldText =
+  typeof data.yield === 'number' ? t('recipes.for_people', { count: data.yield }) : data.yield;
+
+const difficultyText = data.difficulty ? `${t('recipes.difficulty')}: ${t(data.difficulty)}` : null;
+---
+
+<BaseLayout title={data.title} description={data.summary || data.tags?.join(', ')} image={coverSrc}>
+  <section class="mt-lg mx-auto w-full max-w-6xl">
+    <article itemscope itemtype="https://schema.org/Recipe">
+      <!-- Recipe Header -->
+      {
+        coverSrc && (
+          <section class="mb-lg">
+            {/* Mobile layout */}
+            <div class="space-y-lg md:hidden">
+              <header class="text-center">
+                <Typography variant="h1" className="">
+                  {data.title}
+                </Typography>
+              </header>
+
+              <div class="grid grid-cols-[1fr_55%] items-start gap-4">
+                {/* Left: info - similar to desktop layout */}
+                <div class="space-y-md self-center">
+                  <div class="space-y-md text-center">
+                    {yieldText && (
+                      <Typography variant="muted" className="">
+                        {yieldText}
+                      </Typography>
+                    )}
+                    {difficultyText && (
+                      <Typography variant="muted" className="">
+                        {difficultyText}
+                      </Typography>
+                    )}
+                    {timeParts.length > 0 && (
+                      <div>
+                        {data.time?.total && (
+                          <meta itemprop="totalTime" content={`PT${data.time.total}M`} />
+                        )}
+                        {data.time?.prep && (
+                          <meta itemprop="prepTime" content={`PT${data.time.prep}M`} />
+                        )}
+                        {data.time?.cook && (
+                          <meta itemprop="cookTime" content={`PT${data.time.cook}M`} />
+                        )}
+                        <Typography variant="muted" className="">
+                          {timeParts.join(' • ')}
+                        </Typography>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right: image */}
+                <figure>
+                  <div class="bg-muted relative aspect-[3/4] overflow-hidden rounded-sm shadow">
+                    <img
+                      src={coverSrc}
+                      alt={data.images?.[0]?.alt || data.title}
+                      class="absolute inset-0 h-full w-full object-cover"
+                      loading="lazy"
+                      itemprop="image"
+                    />
+                  </div>
+                </figure>
+
+                {/* Tags spanning both columns */}
+                {data.tags?.length && (
+                  <div class="mt-sm gap-sm col-span-2 flex flex-wrap justify-center">
+                    <span class="sr-only">{t('tags')}</span>
+                    {data.tags.map((tag: string) => (
+                      <a
+                        href={`${base}tags/${slugify(tag)}`}
+                        class="inline-block"
+                        title={t('view_tag_recipes', { tag })}
+                        rel="tag"
+                      >
+                        <Badge variant="secondary" className="capitalize">
+                          <span itemprop="recipeCategory">{tag}</span>
+                        </Badge>
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Desktop layout */}
+            <div class="md:gap-xl hidden md:grid md:grid-cols-2 md:items-center">
+              {/* Text Column */}
+              <header class={`space-y-lg ${imageOnRight ? 'md:order-1' : 'md:order-2'}`}>
+                <Typography variant="h1" className="">
+                  {data.title}
+                </Typography>
+
+                <div class="space-y-md">
+                  {data.tags?.length && (
+                    <div class="gap-sm flex flex-wrap justify-center">
+                      <span class="sr-only">{t('tags')}</span>
+                      {data.tags.map((tag: string) => (
+                        <a
+                          href={`${base}tags/${slugify(tag)}`}
+                          class="inline-block"
+                          title={t('view_tag_recipes', { tag })}
+                          rel="tag"
+                        >
+                          <Badge variant="secondary" className="capitalize">
+                            <span itemprop="recipeCategory">{tag}</span>
+                          </Badge>
+                        </a>
+                      ))}
+                    </div>
+                  )}
+
+                  <div class="space-y-md pl-4xl">
+                    {yieldText && (
+                      <Typography variant="muted" className="">
+                        {yieldText}
+                      </Typography>
+                    )}
+                    {difficultyText && (
+                      <Typography variant="muted" className="">
+                        {difficultyText}
+                      </Typography>
+                    )}
+                    {timeParts.length > 0 && (
+                      <div>
+                        {data.time?.total && (
+                          <meta itemprop="totalTime" content={`PT${data.time.total}M`} />
+                        )}
+                        {data.time?.prep && (
+                          <meta itemprop="prepTime" content={`PT${data.time.prep}M`} />
+                        )}
+                        {data.time?.cook && (
+                          <meta itemprop="cookTime" content={`PT${data.time.cook}M`} />
+                        )}
+                        <Typography variant="muted" className="">
+                          {timeParts.join(' • ')}
+                        </Typography>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </header>
+
+              {/* Image Column */}
+              <figure class={`${imageOnRight ? 'md:order-2' : 'md:order-1'}`}>
+                <div class="bg-muted relative aspect-[2/4] max-h-[400px] overflow-hidden rounded-2xl shadow-lg lg:aspect-[4/3]">
+                  <img
+                    src={coverSrc}
+                    alt={data.images?.[0]?.alt || data.title}
+                    class="absolute inset-0 h-full w-full object-cover"
+                    loading="lazy"
+                    itemprop="image"
+                  />
+                </div>
+              </figure>
+            </div>
+          </section>
+        )
+      }
+
+      <!-- Recipe Sections -->
+      <RecipeSections
+        client:visible
+        recipeId={entry.slug}
+        ingredients={ig}
+        steps={st}
+        notes={nt}
+        nutrition={data.nutrition}
+      />
+
+      <!-- Hidden structured data -->
+      {data.summary && <meta itemprop="description" content={data.summary} />}
+      <meta itemprop="author" content="Maxime C." />
+      {data.date && <meta itemprop="datePublished" content={data.date} />}
+    </article>
+  </section>
+</BaseLayout>

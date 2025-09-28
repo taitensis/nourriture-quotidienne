@@ -1,0 +1,22 @@
+---
+// LangSwitcher.astro
+import LangMenu from '@/components/LangMenu';
+import { LOCALES, getLocaleLabel, type Locale } from '@/i18n/ui';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+
+const current = Astro.currentLocale as Locale;
+
+const rawPath = Astro.url.pathname; // e.g. "/fr/recipes/..."
+const unscoped = rawPath.replace(new RegExp(`^/${current}(?=/|$)`), '');
+const path = unscoped || '/';
+
+const items = LOCALES.map((locale) => ({
+  label: getLocaleLabel(locale),
+  url: getRelativeLocaleUrl(locale, path),
+  current: locale === current,
+}));
+
+const currentLabel = getLocaleLabel(current);
+---
+
+<LangMenu client:load items={items} currentLabel={currentLabel} />

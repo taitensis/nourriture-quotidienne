@@ -1,98 +1,71 @@
 ---
-/** Props that can be passed from pages:
- * - title?: string - The title of the page to be set in the head
- * - description?: string - The meta description of the page to be set in the head
- * - image?: string (absolute URL preferred) - The meta image of the page to be set in the head
- * - noIndex?: boolean - If true, adds a meta tag to prevent search engines from indexing the page
- */
-import "../styles/global.css";
-import ThemeToggle from "@/components/ThemeToggle";
-import MobileMenu from "@/components/MobileMenu";
+import '../styles/global.css';
+import hero from '@/assets/hero.webp';
+import Seo from '@/components/seo/Seo.astro';
+import Header from '@/components/chrome/Header.astro';
+import Footer from '@/components/chrome/Footer.astro';
+import Background from '@/components/chrome/Background.astro';
+import { t, setLocale, DEFAULT_LOCALE, type Locale } from '@/i18n/ui';
+
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+setLocale(locale); // Set the global locale context
+
+export interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  noIndex?: boolean;
+  bgUrl?: string;
+  mainClass?: string;
+  hideHeader?: boolean;
+  hideFooter?: boolean;
+}
 
 const {
-    title = "Nourriture Quotidienne",
-    description = "A project to log my personal recipe collection.",
-    image,
-    noIndex = false,
+  title = 'Nourriture Quotidienne',
+  description = t('welcome.welcome_message'),
+  image,
+  noIndex = false,
+  bgUrl,
+  mainClass = '',
+  hideHeader = false,
+  hideFooter = false,
 } = Astro.props;
 
-// Helpful computed bits
-const site = typeof Astro.site === "string" ? Astro.site : "";
-const pageTitle = title === "Nourriture Quotidienne" ? title : `${title} · Nourriture Quotidienne`;
-const canonical = site ? new URL(Astro.url.pathname, site).toString() : undefined;
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).toString() : undefined;
 ---
-<!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 antialiased">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>{pageTitle}</title>
-        <meta name="description" content={description} />
-        {noIndex && <meta name="robots" content="noindex,nofollow" />}
-        {canonical && <link rel="canonical" href={canonical} />}
 
-        {/* Open Graph / Twitter */}
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content={pageTitle} />
-        <meta property="og:description" content={description} />
-        {image && <meta property="og:image" content={image} />}
-        <meta name="twitter:card" content={image ? "summary_large_image" : "summary"} />
-        <meta name="twitter:title" content={pageTitle} />
-        <meta name="twitter:description" content={description} />
-        {image && <meta name="twitter:image" content={image} />}
-
-            {/* Prevent dark-mode flash */}
-    <script>
-      {`try {
-        const saved = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (saved === 'dark' || (!saved && prefersDark)) {
-          document.documentElement.classList.add('dark');
-        }
-      } catch (_) {}`}
+<!doctype html>
+<html lang={locale} class="scroll-smooth">
+  <head>
+    <Seo
+      title={title === 'Nourriture Quotidienne' ? title : `${title} · Nourriture Quotidienne`}
+      description={description}
+      image={image}
+      noIndex={noIndex}
+      locale={locale}
+      canonical={canonical}
+    />
+    <slot name="head" />
+    <script is:inline>
+      try {
+        const s = localStorage.getItem('theme');
+        const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches;
+        if (s === 'dark' || (!s && prefersDark)) document.documentElement.classList.add('dark');
+      } catch {}
     </script>
-    </head>
+  </head>
+  <body class="bg-background text-foreground flex min-h-dvh flex-col antialiased">
+    {!hideHeader && <Header />}
 
-    <body class="min-h-screen flex flex-col">
-        <a href="#content" class="sr-only focus:not-sr-only focus:absolute focus:m-4 focus:rounded focus:bg-amber-200/80 focus:px-3 focus:py-2 focus:text-slate-800">
-            Skip to content
-        </a>
+    {bgUrl && <Background src={hero.src} />}
 
-        <header class="pt-4 border-b border-slate-200/60 dark:border-slate-800/80">
-  <div class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
-    <!-- Brand -->
-    <a href={import.meta.env.BASE_URL} class="flex items-center gap-2 font-semibold">
-      <span class="tracking-tight">Nourriture Quotidienne</span>
-    </a>
+    <main id="main-content" class={`relative flex-1 px-4 py-3 ${mainClass}`}>
+      <div class="relative z-10">
+        <slot />
+      </div>
+    </main>
 
-    <!-- Mobile: Theme toggle + hamburger -->
-    <MobileMenu client:load />
-
-    <!-- Desktop nav -->
-    <nav class="hidden md:flex items-center gap-6 text-sm">
-        <a href={import.meta.env.BASE_URL} class="hover:text-amber-600">Home</a>
-        <a href={`${import.meta.env.BASE_URL}recipes`} class="hover:text-amber-600">Recipes</a>
-        <a href={`${import.meta.env.BASE_URL}about`} class="hover:text-amber-600">About</a>
-      <ThemeToggle client:load />
-    </nav>
-  </div>
-</header>
-
-        <main id="content" class="py-8">
-            <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-                <slot />
-            </div>
-        </main>
-
-        <footer class="border-t border-slate-200/60 dark:border-slate-800/80">
-        <div class="mx-auto max-w-6xl px-4 py-6 text-sm text-slate-500 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-            <p>© {new Date().getFullYear()} Maxime C. — Recipes for everyday cooking.</p>
-            <p>
-                Built with <a href="https://astro.build" target="_blank" rel="noreferrer" class="underline hover:text-amber-600">Astro</a>,
-                <a href="https://tailwindcss.com" target="_blank" rel="noreferrer" class="underline hover:text-amber-600 ml-1">Tailwind CSS</a>, and
-                <a href="https://ui.shadcn.com" target="_blank" rel="noreferrer" class="underline hover:text-amber-600 ml-1">shadcn/ui</a>.
-            </p>
-        </div>
-        </footer>
-    </body>
+    {!hideFooter && <Footer />}
+  </body>
 </html>

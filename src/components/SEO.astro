@@ -1,0 +1,132 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  type?: 'website' | 'article' | 'recipe';
+  recipe?: {
+    name: string;
+    author: string;
+    description: string;
+    image: string;
+    prepTime?: string;
+    cookTime?: string;
+    totalTime?: string;
+    recipeYield?: string | number;
+    recipeCategory?: string[];
+    recipeIngredient?: string[];
+    recipeInstructions?: string[];
+    nutrition?: any;
+    datePublished?: string;
+  };
+  noIndex?: boolean;
+  canonical?: string;
+}
+
+const {
+  title,
+  description,
+  image,
+  type = 'website',
+  recipe,
+  noIndex = false,
+  canonical,
+} = Astro.props;
+
+const site = Astro.site?.toString() || '';
+const currentUrl = canonical || new URL(Astro.url.pathname, site).toString();
+const imageUrl = image
+  ? image.startsWith('http')
+    ? image
+    : new URL(image, site).toString()
+  : null;
+
+// Generate recipe structured data
+const recipeStructuredData = recipe
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'Recipe',
+      name: recipe.name,
+      author: {
+        '@type': 'Person',
+        name: recipe.author,
+      },
+      description: recipe.description,
+      image: recipe.image,
+      prepTime: recipe.prepTime,
+      cookTime: recipe.cookTime,
+      totalTime: recipe.totalTime,
+      recipeYield: recipe.recipeYield,
+      recipeCategory: recipe.recipeCategory,
+      recipeIngredient: recipe.recipeIngredient,
+      recipeInstructions: recipe.recipeInstructions?.map((instruction) => ({
+        '@type': 'HowToStep',
+        text: instruction,
+      })),
+      nutrition: recipe.nutrition
+        ? {
+            '@type': 'NutritionInformation',
+            ...recipe.nutrition,
+          }
+        : undefined,
+      datePublished: recipe.datePublished,
+      url: currentUrl,
+    }
+  : null;
+---
+
+<!-- Basic Meta Tags -->
+<title>{title}</title>
+<meta name="description" content={description} />
+{canonical && <link rel="canonical" href={canonical} />}
+{noIndex && <meta name="robots" content="noindex,nofollow" />}
+
+<!-- Open Graph -->
+<meta property="og:type" content={type} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={currentUrl} />
+<meta property="og:site_name" content="Nourriture Quotidienne" />
+{imageUrl && <meta property="og:image" content={imageUrl} />}
+{imageUrl && <meta property="og:image:alt" content={title} />}
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content={imageUrl ? 'summary_large_image' : 'summary'} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{imageUrl && <meta name="twitter:image" content={imageUrl} />}
+
+<!-- Recipe Structured Data -->
+{
+  recipeStructuredData && (
+    <script type="application/ld+json" set:html={JSON.stringify(recipeStructuredData, null, 2)} />
+  )
+}
+
+<!-- Additional structured data for website -->
+{
+  type === 'website' && (
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(
+        {
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: 'Nourriture Quotidienne',
+          description: 'A collection of everyday recipes',
+          url: site,
+          potentialAction: {
+            '@type': 'SearchAction',
+            target: {
+              '@type': 'EntryPoint',
+              urlTemplate: site + '/recipes?q={search_term_string}',
+            },
+            'query-input': 'required name=search_term_string',
+          },
+        },
+        null,
+        2
+      )}
+    />
+  )
+}

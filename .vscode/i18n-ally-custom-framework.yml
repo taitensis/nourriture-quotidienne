@@ -1,0 +1,32 @@
+# .vscode/i18n-ally-custom-framework.yml
+
+# Language IDs for your Astro + TypeScript stack
+languageIds:
+  - javascript
+  - typescript
+  - javascriptreact
+  - typescriptreact
+  - astro
+
+# RegEx patterns to detect your translation function calls
+# This detects tt('key') where tt is created by makeT()
+# The {key} placeholder will be replaced with the actual key pattern
+usageMatchRegex:
+  - "t\\(['\"`]({key})['\"`]\\)"
+  - "\\{t\\(['\"`]({key})['\"`]\\)\\}"
+
+# This regex detects the scope by looking for makeT(locale) patterns
+# It will capture the locale variable to understand context
+scopeRangeRegex: "t\\s*=\\s*makeT\\(([^)]+)\\)"
+
+# If you use the useTranslation hook, this would detect the scope
+# For example: const {t} = useTranslation('common') would set scope to 'common'
+# Comment out if you don't use this pattern
+# scopeRangeRegex: "useTranslation\\(\\s*['\"`](.*?)['\"`]"
+
+# Templates for refactoring (when i18n Ally suggests extracting hardcoded strings)
+refactorTemplates:
+  - 't("$1")'
+
+# Set to true to only use this framework (disable built-in ones)
+monopoly: true

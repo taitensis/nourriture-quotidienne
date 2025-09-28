@@ -1,0 +1,24 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+
+  // Ensure Astro files use Prettier (via prettier-plugin-astro)
+  "[astro]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+
+  // Avoid double formatting via ESLint while debugging
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "never"
+  }, // <- Added missing comma here
+
+  // i18n Ally configuration
+  "i18n-ally.localesPaths": ["src/i18n/locales"],
+  "i18n-ally.keystyle": "nested",
+  // "i18n-ally.enabledFrameworks": ["general"],
+  "i18n-ally.sourceLanguage": "en"
+  // "i18n-ally.displayLanguage": "en",
+  // "i18n-ally.extract.autoDetect": true,
+  // Since you're using TypeScript files, specify the namespace
+  // "i18n-ally.namespace": true,
+  // Enable inline annotations in your code
+  // "i18n-ally.annotations": true
+}

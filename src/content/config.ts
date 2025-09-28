@@ -1,22 +1,20 @@
-import { defineCollection, z } from "astro:content";
+import { defineCollection, z } from 'astro:content';
 
 const recipes = defineCollection({
-  type: "content", // 'data' or 'content'
+  type: 'content', // 'data' or 'content'
   schema: z.object({
     // schema for frontmatter validation
     title: z.string(), // e.g. "Chocolate Chip Cookies"
     date: z.date(), // e.g. "2023-10-05"
     description: z.string().optional(), // e.g. "Delicious homemade chocolate chip cookies."
-    lang: z.enum(["en", "fr"]).default("en"), // language of the recipe
+    lang: z.enum(['en', 'fr']).default('en'), // language of the recipe
     yield: z
       .union([z.number(), z.string()])
       .optional()
       .transform((v) =>
-        typeof v === "number"
-          ? v
-          : Number(String(v).match(/\d+/)?.[0]) || undefined
+        typeof v === 'number' ? v : Number(String(v).match(/\d+/)?.[0]) || undefined
       ), // number of servings or string like "4-6"
-    difficulty: z.enum(["easy", "medium", "hard"]).optional(), // difficulty level
+    difficulty: z.enum(['easy', 'medium', 'hard']).optional(), // difficulty level
     tags: z.array(z.string()).optional(), // e.g. ["dessert", "snack", "vegetarian", ...]
     time: z
       .object({

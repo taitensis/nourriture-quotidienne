@@ -1,17 +1,17 @@
-import * as React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import * as React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+} from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 /* ---------------- types ---------------- */
 
@@ -21,7 +21,7 @@ export type RecipeItem = {
   tags?: string[];
   total?: number | null; // total minutes
   date?: Date | null; // ensure you pass Date (or adapt below)
-  difficulty?: "easy" | "medium" | "hard" | null;
+  difficulty?: 'easy' | 'medium' | 'hard' | null;
   image?: string | null; // e.g. "/images/..." or absolute
   summary?: string | null;
 };
@@ -31,14 +31,10 @@ type Props = { items: RecipeItem[] };
 /* -------------- component --------------- */
 
 export default function RecipesIndex({ items }: Props) {
-  const [query, setQuery] = React.useState("");
-  const [sort, setSort] = React.useState<
-    "newest" | "oldest" | "shortest" | "longest"
-  >("newest");
+  const [query, setQuery] = React.useState('');
+  const [sort, setSort] = React.useState<'newest' | 'oldest' | 'shortest' | 'longest'>('newest');
   const [activeTags, setActiveTags] = React.useState<Set<string>>(new Set());
-  const [difficulties, setDifficulties] = React.useState<Set<string>>(
-    new Set()
-  );
+  const [difficulties, setDifficulties] = React.useState<Set<string>>(new Set());
 
   const allTags = React.useMemo(() => {
     const s = new Set<string>();
@@ -65,28 +61,25 @@ export default function RecipesIndex({ items }: Props) {
         !q ||
         i.title.toLowerCase().includes(q) ||
         (i.tags || []).some((t) => t.toLowerCase().includes(q));
-      const matchesTags =
-        activeTags.size === 0 || (i.tags || []).some((t) => activeTags.has(t));
+      const matchesTags = activeTags.size === 0 || (i.tags || []).some((t) => activeTags.has(t));
       const matchesDiff =
-        difficulties.size === 0 ||
-        (i.difficulty && difficulties.has(i.difficulty));
+        difficulties.size === 0 || (i.difficulty && difficulties.has(i.difficulty));
       return matchesQuery && matchesTags && matchesDiff;
     });
 
     out.sort((a, b) => {
-      if (sort === "newest") {
+      if (sort === 'newest') {
         const bDate = b.date instanceof Date ? b.date.getTime() : 0;
         const aDate = a.date instanceof Date ? a.date.getTime() : 0;
         return bDate - aDate;
       }
-      if (sort === "oldest") {
+      if (sort === 'oldest') {
         const aDate = a.date instanceof Date ? a.date.getTime() : 0;
         const bDate = b.date instanceof Date ? b.date.getTime() : 0;
         return aDate - bDate;
       }
-      if (sort === "shortest")
-        return (a.total ?? Infinity) - (b.total ?? Infinity);
-      if (sort === "longest") return (b.total ?? -1) - (a.total ?? -1);
+      if (sort === 'shortest') return (a.total ?? Infinity) - (b.total ?? Infinity);
+      if (sort === 'longest') return (b.total ?? -1) - (a.total ?? -1);
       return 0;
     });
 
@@ -129,14 +122,15 @@ export default function RecipesIndex({ items }: Props) {
             <div className="space-y-2">
               <label className="text-sm font-medium">Difficulty</label>
               <ToggleGroup type="multiple" className="justify-start">
-                {["easy", "medium", "hard"].map((d) => (
+                {['easy', 'medium', 'hard'].map((d) => (
                   <ToggleGroupItem
                     key={d}
                     value={d}
                     aria-label={`Toggle ${d}`}
-                    data-state={difficulties.has(d) ? "on" : "off"}
+                    data-state={difficulties.has(d) ? 'on' : 'off'}
                     onClick={() => toggleDifficulty(d)}
-                    className="capitalize">
+                    className="capitalize"
+                  >
                     {d}
                   </ToggleGroupItem>
                 ))}
@@ -152,15 +146,14 @@ export default function RecipesIndex({ items }: Props) {
                 key={tag}
                 onClick={() => toggleTag(tag)}
                 className={`cursor-pointer select-none ${
-                  activeTags.has(tag) ? "" : "opacity-60 hover:opacity-100"
+                  activeTags.has(tag) ? '' : 'opacity-60 hover:opacity-100'
                 }`}
-                variant={activeTags.has(tag) ? "default" : "secondary"}>
+                variant={activeTags.has(tag) ? 'default' : 'secondary'}
+              >
                 {tag}
               </Badge>
             ))}
-            {allTags.length === 0 && (
-              <span className="text-sm text-slate-500">No tags yet</span>
-            )}
+            {allTags.length === 0 && <span className="text-sm text-slate-500">No tags yet</span>}
           </div>
 
           {(activeTags.size > 0 || difficulties.size > 0 || query) && (
@@ -169,11 +162,12 @@ export default function RecipesIndex({ items }: Props) {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setQuery("");
-                  setSort("newest");
+                  setQuery('');
+                  setSort('newest');
                   setActiveTags(new Set());
                   setDifficulties(new Set());
-                }}>
+                }}
+              >
                 Reset filters
               </Button>
             </div>
@@ -201,32 +195,28 @@ function RecipeCard({ item }: { item: RecipeItem }) {
   const base = import.meta.env.BASE_URL; // "/nourriture-quotidienne/" on GH Pages
   const href = `${base}recipes/${item.slug}`;
   const imgSrc = item.image
-    ? item.image.startsWith("/")
+    ? item.image.startsWith('/')
       ? base + item.image.slice(1)
       : item.image
     : null;
 
   return (
-    <Card
-      className="overflow-hidden px-3 py-3 group border border-slate-200 dark:border-slate-800
-                 transition-[color,box-shadow] hover:border-ring hover:ring-ring/50 hover:ring-[3px]">
+    <Card className="group hover:border-ring hover:ring-ring/50 overflow-hidden border border-slate-200 px-3 py-3 transition-[color,box-shadow] hover:ring-[3px] dark:border-slate-800">
       {imgSrc && (
         <a href={href} className="block">
           <div className="relative aspect-[4/3]">
             <img
               src={imgSrc}
               alt={item.title}
-              className="absolute inset-0 block h-full w-full object-cover duration-300 transition group-hover:brightness-105"
+              className="absolute inset-0 block h-full w-full object-cover transition duration-300 group-hover:brightness-105"
               loading="lazy"
             />
           </div>
         </a>
       )}
-      <CardContent className="p-4 space-y-3">
+      <CardContent className="space-y-3 p-4">
         <a href={href} className="block">
-          <h3 className="font-semibold leading-tight line-clamp-2">
-            {item.title}
-          </h3>
+          <h3 className="line-clamp-2 leading-tight font-semibold">{item.title}</h3>
         </a>
         <div className="flex flex-wrap gap-2">
           {item.tags?.slice(0, 3).map((t) => (
@@ -234,9 +224,7 @@ function RecipeCard({ item }: { item: RecipeItem }) {
               {t}
             </Badge>
           ))}
-          {item.total != null && (
-            <Badge variant="outline">{item.total} min</Badge>
-          )}
+          {item.total != null && <Badge variant="outline">{item.total} min</Badge>}
           {item.difficulty && (
             <Badge variant="outline" className="capitalize">
               {item.difficulty}

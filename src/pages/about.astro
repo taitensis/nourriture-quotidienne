@@ -1,0 +1,6 @@
+---
+import { t, setLocale, DEFAULT_LOCALE, type Locale } from '@/i18n/ui';
+
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+setLocale(locale); // Set the global locale context
+---

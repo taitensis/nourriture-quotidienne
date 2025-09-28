@@ -1,0 +1,58 @@
+---
+import { Typography } from '@/components/ui/typography';
+import { Card, CardContent } from '@/components/ui/card';
+import { withBase, join } from '@/lib/utils';
+import type { CollectionEntry } from 'astro:content';
+import { t, setLocale, DEFAULT_LOCALE, type Locale } from '@/i18n/ui';
+
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+setLocale(locale); // Set the global locale context
+
+type RecipeEntry = CollectionEntry<'recipes'>;
+
+interface Props {
+  items?: RecipeEntry[];
+  base?: string;
+}
+
+const { items = [], base = import.meta.env.BASE_URL } = Astro.props;
+const localePrefix = locale === DEFAULT_LOCALE ? '' : `/${locale}`;
+const localeBase = join(base, localePrefix);
+---
+
+{
+  items.length > 0 && (
+    <section class="mt-2xl mx-auto w-full max-w-6xl">
+      <div>
+        <Typography variant="h2">{t('recipes.latest_recipes')}</Typography>
+      </div>
+
+      <div class="gap-md mt-md grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+        {items.map((r) => (
+          <a
+            href={join(localeBase, `recipes/${r.slug}/`)}
+            class="group focus-visible:ring-primary/30 focus-visible:ring-offset-background block transition-transform duration-200 hover:-translate-y-0.5 hover:no-underline focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transform-none motion-reduce:transition-none"
+          >
+            <Card className="px-md py-md gap-y-lg bg-card">
+              {r.data.images?.[0]?.src && (
+                <div class="m-0 overflow-hidden p-0">
+                  <img
+                    src={withBase(r.data.images[0].src)}
+                    class="m-0 aspect-[4/3] w-full object-cover p-0 transition-opacity duration-200 group-hover:opacity-95 motion-reduce:transition-none"
+                    alt={r.data.images?.[0]?.alt ?? ''}
+                    loading="lazy"
+                  />
+                </div>
+              )}
+              <CardContent className="p-0 flex w-full justify-center">
+                <Typography variant="cardTitle" className="p-0 m-0 text-center">
+                  {r.data.title}
+                </Typography>
+              </CardContent>
+            </Card>
+          </a>
+        ))}
+      </div>
+    </section>
+  )
+}

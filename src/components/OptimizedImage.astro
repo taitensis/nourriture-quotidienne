@@ -1,0 +1,122 @@
+---
+import type { ImageMetadata } from 'astro';
+import { getImage } from 'astro:assets';
+
+export interface Props {
+  src: string | ImageMetadata;
+  alt: string;
+  width?: number;
+  height?: number;
+  quality?: number;
+  format?: 'webp' | 'avif' | 'jpeg' | 'jpg' | 'png';
+  loading?: 'lazy' | 'eager';
+  class?: string;
+  sizes?: string;
+  densities?: number[]; // kept for API compat, unused below
+  widths?: number[];
+}
+
+const {
+  src: srcProp,
+  alt,
+  width,
+  height,
+  quality = 80,
+  format = 'webp',
+  loading = 'lazy',
+  class: className,
+  sizes = '(min-width: 768px) 50vw, 100vw',
+  densities = [1, 2],
+  widths = [320, 640, 960, 1280, 1920],
+  ...rest
+} = Astro.props as Props;
+
+// ---- helpers ---------------------------------------------------------------
+
+const isExternalUrl =
+  typeof srcProp === 'string' &&
+  (srcProp.startsWith('http://') || srcProp.startsWith('https://') || srcProp.startsWith('//'));
+
+const getSrcFrom = (v: string | ImageMetadata) => (typeof v === 'string' ? v : v.src);
+
+type SimpleImage = { src: string; width?: number; height?: number };
+
+// getImage() shape guard (Astro returns { src, attributes: {width,height,...} })
+type GetImageOutput = Awaited<ReturnType<typeof getImage>>;
+const hasAttributes = (
+  v: unknown
+): v is { src: string; attributes?: { width?: number; height?: number } } =>
+  !!v && typeof v === 'object' && 'src' in v;
+
+// ----------------------------------------------------------------------------
+
+let optimizedImage: SimpleImage = { src: getSrcFrom(srcProp) };
+let srcSet: string | undefined;
+
+if (!isExternalUrl && typeof srcProp !== 'string') {
+  // Local asset -> use Astro optimizer
+  try {
+    const img: GetImageOutput = await getImage({
+      src: srcProp,
+      width,
+      height,
+      quality,
+      format,
+    });
+
+    if (hasAttributes(img)) {
+      optimizedImage = {
+        src: img.src,
+        width: img.attributes?.width ?? width,
+        height: img.attributes?.height ?? height,
+      };
+    } else {
+      // Fallback mapping if the type shape changes
+      optimizedImage = { src: (img as any).src, width, height };
+    }
+
+    if (widths.length > 0) {
+      const srcSetImages = await Promise.all(
+        widths.map((w) => getImage({ src: srcProp, width: w, quality, format }))
+      );
+      srcSet = srcSetImages
+        .map((itm, i) => {
+          const url = (itm as any).src as string;
+          return `${url} ${widths[i]}w`;
+        })
+        .join(', ');
+    }
+  } catch (error) {
+    console.error('Error optimizing image:', error);
+    optimizedImage = { src: getSrcFrom(srcProp), width, height };
+  }
+} else {
+  // External URL or string path -> use as-is
+  optimizedImage = { src: getSrcFrom(srcProp), width, height };
+}
+---
+
+<img
+  src={optimizedImage.src}
+  alt={alt}
+  width={optimizedImage.width || width}
+  height={optimizedImage.height || height}
+  loading={loading}
+  decoding="async"
+  class={className}
+  sizes={srcSet ? sizes : undefined}
+  srcset={srcSet}
+  {...rest}
+/>
+
+{
+  loading === 'eager' && (
+    <link
+      rel="preload"
+      as="image"
+      href={optimizedImage.src}
+      imagesizes={sizes}
+      imagesrcset={srcSet}
+    />
+  )
+}

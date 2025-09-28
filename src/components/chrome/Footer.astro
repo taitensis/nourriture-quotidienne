@@ -1,0 +1,29 @@
+---
+import { t, setLocale, DEFAULT_LOCALE, type Locale } from '@/i18n/ui';
+
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+setLocale(locale);
+
+const year = new Date().getFullYear();
+---
+
+<footer class="bg-background px-md py-sm border-border border-t backdrop-blur-sm">
+  <div class="px-md py-lg mx-auto max-w-6xl">
+    <div class="gap-md flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <p class="text-muted-foreground text-sm">
+        © {year} Maxime C. — {t('footer.copyright').replace('© {year} Maxime C. — ', '')}
+      </p>
+
+      <div class="text-muted-foreground gap-xs flex flex-wrap text-sm">
+        <span
+          >{
+            t('footer.built_with')
+              .replace('{astro}', 'Astro')
+              .replace('{tailwind}', 'Tailwind CSS')
+              .replace('{shadcn}', 'shadcn/ui')
+          }</span
+        >
+      </div>
+    </div>
+  </div>
+</footer>

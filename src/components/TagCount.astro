@@ -1,0 +1,42 @@
+---
+import { Typography } from '@/components/ui/typography';
+import { Badge } from '@/components/ui/badge';
+import { join } from '@/lib/utils';
+import { t, setLocale, DEFAULT_LOCALE, type Locale } from '@/i18n/ui';
+
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+setLocale(locale); // Set the global locale context
+
+type TagCount = [string, number];
+
+interface Props {
+  items?: TagCount[]; // [["asian", 3], ["vegan", 2], ...]
+  base?: string;
+}
+
+const { items = [], base = import.meta.env.BASE_URL } = Astro.props;
+
+const localePrefix = locale === DEFAULT_LOCALE ? '' : `/${locale}`;
+const localeBase = join(base, localePrefix);
+---
+
+{
+  items.length > 0 && (
+    <section class="mt-2xl mb-lg mx-auto w-full max-w-6xl">
+      <div>
+        <Typography variant="h2">{t('recipes.browse_by_tag')}</Typography>
+      </div>
+
+      <div class="mt-md gap-sm flex flex-wrap">
+        {items.map(([t, c]) => (
+          <a href={`${join(localeBase, 'recipes')}?tag=${encodeURIComponent(t)}`} class="">
+            <Badge variant="default" className="">
+              {t}
+              <span class="">({c as number})</span>
+            </Badge>
+          </a>
+        ))}
+      </div>
+    </section>
+  )
+}

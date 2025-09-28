@@ -1,0 +1,18 @@
+---
+export interface Props {
+  src: string; // relative or absolute
+  overlayLight?: string; // e.g. "bg-white/80"
+  overlayDark?: string; // e.g. "dark:bg-black/90"
+}
+
+const { src, overlayLight = 'bg-white/60', overlayDark = 'dark:bg-black/90' } = Astro.props;
+---
+
+<div class="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
+  <div
+    class="absolute inset-0 bg-cover bg-center bg-no-repeat"
+    style={`background-image:url('${src}')`}
+  >
+  </div>
+  <div class={`absolute inset-0 ${overlayLight} ${overlayDark}`}></div>
+</div>

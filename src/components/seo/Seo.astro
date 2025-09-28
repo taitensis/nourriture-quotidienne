@@ -1,0 +1,85 @@
+---
+import { LOCALES, DEFAULT_LOCALE, type Locale } from '@/i18n/ui';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+
+export interface Props {
+  title: string;
+  description: string;
+  image?: string; // relative or absolute
+  noIndex?: boolean;
+  locale: Locale;
+  canonical?: string; // absolute if available
+  jsonLd?: Record<string, any>; // optional extra JSON-LD
+}
+
+const { title, description, image, noIndex = false, locale, canonical, jsonLd } = Astro.props;
+
+const site = Astro.site?.toString() || '';
+
+// Ensure absolute OG image URL when possible
+const ogImage = image ? (site ? new URL(image, site).toString() : image) : undefined;
+
+const OG_LOCALE: Record<string, string> = {
+  en: 'en_US',
+  fr: 'fr_FR',
+  es: 'es_ES',
+  nl: 'nl_NL',
+};
+const ogLocale = OG_LOCALE[locale] ?? 'en_US';
+
+// hreflang alternates
+const altUrls = LOCALES.map((l) => ({
+  lang: l,
+  href: site ? new URL(getRelativeLocaleUrl(l), site).toString() : getRelativeLocaleUrl(l),
+}));
+
+// Minimal JSON-LD (mergeable)
+const baseLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Nourriture Quotidienne',
+  description,
+  url: site || undefined,
+  inLanguage: locale,
+  author: { '@type': 'Person', name: 'Maxime C.' },
+};
+const mergedLd = jsonLd ? { ...baseLd, ...jsonLd } : baseLd;
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+{noIndex && <meta name="robots" content="noindex,nofollow" />}
+
+{canonical && <link rel="canonical" href={canonical} />}
+
+{altUrls.map(({ lang, href }) => <link rel="alternate" hreflang={lang} href={href} />)}
+{
+  site && (
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href={new URL(getRelativeLocaleUrl(DEFAULT_LOCALE), site).toString()}
+    />
+  )
+}
+
+<!-- Open Graph -->
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+{canonical && <meta property="og:url" content={canonical} />}
+<meta property="og:site_name" content="Nourriture Quotidienne" />
+<meta property="og:locale" content={ogLocale} />
+{ogImage && <meta property="og:image" content={ogImage} />}
+
+<!-- Twitter -->
+<meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{ogImage && <meta name="twitter:image" content={ogImage} />}
+
+<!-- JSON-LD -->
+<script is:inline type="application/ld+json" set:html={JSON.stringify(mergedLd)} />

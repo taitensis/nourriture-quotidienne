@@ -1,0 +1,55 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { Typography } from '@/components/ui/typography';
+import { Button } from '@/components/ui/button';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { t, setLocale, DEFAULT_LOCALE, type Locale } from '@/i18n/ui';
+
+const locale = (Astro.currentLocale ?? DEFAULT_LOCALE) as Locale;
+setLocale(locale); // Set the global locale context
+
+const homeUrl = getRelativeLocaleUrl(locale, '/');
+const recipesUrl = getRelativeLocaleUrl(locale, '/recipes');
+---
+
+<BaseLayout
+  title={t('errors.page_not_found') || 'Page Not Found'}
+  description={t('errors.page_not_found_description') ||
+    'The page you are looking for does not exist.'}
+  noIndex={true}
+>
+  <section class="mt-lg mx-auto w-full max-w-6xl text-center">
+    <div class="space-y-md">
+      <!-- Large 404 -->
+      <div class="text-muted-foreground/20 text-9xl font-bold select-none">404</div>
+
+      <!-- Heading -->
+      <Typography variant="h1">
+        {t('errors.page_not_found') || 'Page Not Found'}
+      </Typography>
+
+      <!-- Description -->
+      <Typography variant="lead" className="mx-auto max-w-2xl">
+        {
+          t('errors.page_not_found_description') ||
+            'The page you are looking for might have been moved, renamed, or does not exist.'
+        }
+      </Typography>
+
+      <!-- Action buttons -->
+      <div class="gap-md pt-md flex flex-col justify-center sm:flex-row">
+        <Button asChild size="lg">
+          <a href={homeUrl}>
+            {t('errors.go_home') || 'Go Home'}
+          </a>
+        </Button>
+
+        <Button asChild variant="outline" size="lg">
+          <a href={recipesUrl}>
+            {t('errors.browse_recipes') || 'Browse Recipes'}
+          </a>
+        </Button>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
