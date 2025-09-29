@@ -23,14 +23,14 @@ const { items = [], base = import.meta.env.BASE_URL } = Astro.props;
     <section class="mt-2xl mx-auto w-full max-w-6xl">
       <Typography variant="h2">{t('recipes.seasonal_picks')}</Typography>
 
-      <div class="gap-md mt-md grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+      <div class="gap-md mt-md grid grid-cols-2 items-stretch sm:grid-cols-3 lg:grid-cols-4">
         {items.map((r) => (
           <a
             href={join(base, `recipes/${r.slug}/`)}
             class="group focus-visible:ring-primary/30 focus-visible:ring-offset-background block transition-transform duration-200 hover:-translate-y-0.5 hover:no-underline focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transform-none motion-reduce:transition-none"
           >
-            <Card className="px-md py-md gap-y-lg bg-card">
-              <CardContent className="p-0 flex w-full justify-center">
+            <Card className="flex flex-col h-full px-md py-md gap-y-lg bg-card">
+              <CardContent className="p-0 flex w-full justify-center line-clamp-2">
                 <Typography variant="cardTitle" className="p-0 m-0 text-center">
                   {r.data.title}
                 </Typography>
