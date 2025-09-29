@@ -11,7 +11,9 @@ const recipes = defineCollection({
     slug: z.string().optional(), // allow localized slugs
     featured: z.boolean().optional(),
     month: z.number().int().min(1).max(12).optional(),
-    season: z.enum(['winter', 'spring', 'summer', 'autumn', 'all']).optional(),
+    season: z
+      .union([z.enum(['winter', 'spring', 'summer', 'autumn']), z.literal('all')])
+      .optional(),
     description: z.string().optional(), // e.g. "Delicious homemade chocolate chip cookies."
     yield: z
       .union([z.number(), z.string()])
@@ -19,6 +21,7 @@ const recipes = defineCollection({
       .transform((v) =>
         typeof v === 'number' ? v : Number(String(v).match(/\d+/)?.[0]) || undefined
       ), // number of servings or string like "4-6"
+    yieldUnit: z.string().optional(),
     difficulty: z.enum(['easy', 'medium', 'hard']).optional(), // difficulty level
     tags: z.array(z.string()).optional(), // e.g. ["dessert", "snack", "vegetarian", ...]
     time: z
