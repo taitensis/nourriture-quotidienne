@@ -25,13 +25,13 @@ const localeBase = join(base, localePrefix);
     <section class="mt-3xl mx-auto w-full max-w-6xl">
       <Typography variant="h2">{t('recipes.featured')}</Typography>
 
-      <div class="gap-md mt-md grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+      <div class="gap-md mt-md grid grid-cols-2 items-stretch sm:grid-cols-3 lg:grid-cols-4">
         {items.map((r) => (
           <a
             href={join(localeBase, `recipes/${r.slug}/`)}
             class="group focus-visible:ring-primary/30 focus-visible:ring-offset-background m-0 block p-0 transition-transform duration-200 hover:-translate-y-0.5 hover:no-underline focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transform-none motion-reduce:transition-none"
           >
-            <Card className="px-md py-md gap-y-lg bg-card">
+            <Card className="flex flex-col h-full px-md py-md gap-y-lg bg-card">
               {r.data.images?.[0]?.src && (
                 <div class="m-0 overflow-hidden p-0">
                   <img
@@ -42,7 +42,7 @@ const localeBase = join(base, localePrefix);
                   />
                 </div>
               )}
-              <CardContent className="p-0 flex w-full justify-center">
+              <CardContent className="p-0 flex w-full justify-center line-clamp-2">
                 <Typography variant="cardTitle" className="p-0 m-0 text-center">
                   {r.data.title}
                 </Typography>
